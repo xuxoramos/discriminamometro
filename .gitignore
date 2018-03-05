@@ -1,9 +1,11 @@
 # History files
 .Rhistory
 .Rapp.history
+.RDataTmp2
 
 # Session Data files
 .RData
+.DS_Store
 
 # Example code in package build process
 *-Ex.R
@@ -16,6 +18,7 @@
 
 # RStudio files
 .Rproj.user/
+.Ruserdata
 
 # produced vignettes
 vignettes/*.html
@@ -31,3 +34,4 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+.Rproj.user
