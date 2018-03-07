@@ -1,0 +1,29 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r, echo=FALSE}
+library(xlsx)
+library(tidyverse)
+library(magrittr)
+library(tidytext)
+library(tm)
+library(stringi)
+```
+
+## Introducción {.tabset .tabset-fade .tabset-pills}
+
+Se realiza un análisis exploratorio de los datos que proporcionó COPRED y un análisis de texto de la narración de los hechos por motivo de discriminación.
+
+### Mini EDA 
+
+```{r, echo=FALSE}
+base_reportes_raw <- readxl::read_xlsx("data/RPORTE HECHOS COPRED (ok).xlsx", sheet = 1)
+```
+
+### TF_IDF
+
+### Topic modeling
+
+
