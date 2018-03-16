@@ -254,7 +254,7 @@ base_reportes %>%
 
 #### Condiciones de salud
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, , message=FALSE}
 base_reportes %>% 
   select(motivo = motivo_dicriminacion, texto = narracion_hechos) %>% 
   filter(motivo == "Condiciones de salud") %>% 
