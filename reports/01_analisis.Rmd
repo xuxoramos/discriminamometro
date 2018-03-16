@@ -1,0 +1,303 @@
+---
+title: "COPRED"
+output: html_notebook
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(xlsx)
+library(tidyverse)
+library(magrittr)
+library(tidytext)
+library(tm)
+library(stringi)
+library(reshape2)
+library(wordcloud)
+library(topicmodels)
+library(widyr)
+library(stringr)
+library(forcats)
+library(plotly)
+library(arulesViz)
+library(arules)
+library(ggraph)
+library(igraph)
+```
+
+## Introducción {.tabset .tabset-fade .tabset-pills}
+
+Se realiza un análisis exploratorio de los datos que proporcionó COPRED y un análisis de texto de la narración de los hechos por motivo de discriminación.
+
+### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_reportes_raw <- readxl::read_xlsx("reporte_vw.xlsx")
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_reportes_raw)
+```
+
+- Se cuenta con información del 2017
+
+```{r, echo=FALSE, message=FALSE}
+data.frame(antigua = min(base_reportes_raw$fecha_ingreso), reciente = max(base_reportes_raw$fecha_ingreso))
+```
+
+- Se cuentan con 43 motivos de discriminación de los cuales sólo se tiene registro en el 2017 de 24.
+
+```{r, echo=FALSE, message=FALSE}
+motivos <- readxl::read_xlsx("motivos_discriminacion.xlsx")
+motivos_totales <- motivos %>% 
+  .$Catalogo_motivos_discriminacion %>% 
+  unique() %>% 
+  length()
+
+motivos_registrados <- base_reportes_raw %>%
+  filter(!is.na(motivo_dicriminacion)) %>% 
+  .$motivo_dicriminacion %>% 
+  unique() %>% 
+  length()
+
+data.frame(motivos_totales, motivos_registrados)
+```
+
+- La variable de importancia de esta base es la `narracion_hechos` de los 3822 registros contamos con 3669 narraciones, de las cuales se tienen 2454 catalogados con algún motivo de discriminación.
+
+- 
+
+```{r, echo=FALSE, message=FALSE}
+narraciones <- base_reportes_raw %>% 
+  filter(!is.na(narracion_hechos)) %>% 
+  nrow()
+
+base_reportes_raw %>% 
+  filter(!is.na(narracion_hechos)) %>% 
+  group_by(motivo_dicriminacion) %>% 
+  summarise(narraciones = n_distinct(narracion_hechos)) %>% 
+  arrange(desc(narraciones))
+```
+
+### TF_IDF
+
+- TF_IDF con una sola palabra
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_reportes_raw %>% 
+  select(id, tipo_actor_id, tipo_actor, fecha_ingreso,
+         fecha_ultima_accion, tipo_intervencion, derecho_vulnerado,
+         estatus, medio_ingreso, tipo_gestion_id, lugar_hechos,
+         dele_mpio, genero, ocupacion, edad_primer_contacto, grupo_pobla,
+         tipo_discri, motivo_discriminacion_id, motivo_dicriminacion, 
+         narracion_hechos) %>% 
+  mutate_if(is.character, as.factor) %>% 
+  filter(motivo_dicriminacion %in% c("Embarazo", "Condiciones de salud", "Género", "Edad", "Discapacidad", "Forma de actuar")) 
+
+base_nar_motivo <- base_reportes %>% 
+  group_by(motivo_dicriminacion) %>% 
+  summarise(texto = paste0(narracion_hechos, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% c("roman", "sanchez","fortino", "alejo",
+                      "paulina", "licona", "lorena", "montes", "nancy",
+                      "oca", "navarro", "nancy", "guadalupe", "araceli",
+                      "palacios", "aide", "barrera", "erika", "aide",
+                      "silva", "gomez", "gaytan", "agnes", "ignacio",
+                      "diana", "alberto", "cesar", "webber", "william",
+                      "zurita", "estefania", "patricia", "counahan",
+                      "javier", "matias", "hernandez", "luis",
+                      "sanchez", "gonzalez", "carlos", "alberto", "salas",
+                      "cisneros", "omar", "macedo", "christy", "lee",
+                      "prosapio", "gisela", "chavez", "aguilar", "sara",
+                      "navarro", "silva", "sergio", "gisela", "jaime",
+                      "ades", "luis", "miguel", "miguel", "mondragon",
+                      "fernando", "zubieta", "lic", "sara", "uriega",
+                      "victor", "mi", "tito", "anahi", "yared", "jennifer",
+                      "me", "orozco", "daniel", "louis", "girette",
+                      "vazquez", "gamboa", "evelina", "rocha", "jean",
+                      "alicia", "elizabeth", "cristina", "placido",
+                      "guizar", "guizar", "eduardo", "rosario", "asimismo")) %>% 
+  count(word, motivo_dicriminacion, sort = TRUE) %>% 
+  na.omit() 
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo %>% 
+  bind_tf_idf(word, motivo_dicriminacion, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(motivo_dicriminacion) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  filter(motivo_dicriminacion %in% c("Embarazo", "Condiciones de salud", "Género", "Edad", "Discapacidad", "Forma de actuar")) %>% 
+  ggplot(aes(word, tf_idf, fill = motivo_dicriminacion)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~motivo_dicriminacion, ncol = 3, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo %>% 
+  bind_tf_idf(word, motivo_dicriminacion, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(motivo_dicriminacion) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  filter(motivo_dicriminacion %in% c("Embarazo", "Condiciones de salud", "Género", "Edad", "Discapacidad", "Forma de actuar")) %>% 
+  acast(word ~ motivo_dicriminacion,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(3, 0.1), title.size = 1)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "c", "dia", 2017,"hacia", "00", "dos", "vez", "ano", "obstante", "asi", "ser", "anos", "hace","roman", "sanchez", "yared daniel", "fortino", "alejo",
+                      "paulina", "licona", "lorena", "montes", "nancy",
+                      "oca", "navarro", "nancy", "guadalupe", "araceli",
+                      "palacios", "aide", "barrera", "erika", "aide",
+                      "silva", "gomez", "gaytan", "agnes", "ignacio",
+                      "diana", "alberto", "cesar", "webber", "william",
+                      "zurita", "estefania", "patricia", "counahan",
+                      "javier", "matias", "hernandez", "luis",
+                      "sanchez", "gonzalez", "carlos", "alberto", "salas",
+                      "cisneros", "omar", "macedo", "christy", "lee",
+                      "prosapio", "gisela", "chavez", "aguilar", "sara",
+                      "navarro", "silva", "sergio", "gisela", "jaime",
+                      "ades", "luis", "miguel", "miguel", "mondragon",
+                      "fernando", "zubieta", "lic", "sara", "uriega",
+                      "victor", "mi", "tito", "mas", "anahi", "yared", "jennifer",
+                      "me", "orozco", "daniel", "louis", "girette",
+                      "vazquez", "gamboa", "evelina", "rocha", "jean",
+                      "alicia", "elizabeth", "cristina", "placido",
+                      "guizar", "guizar", "eduardo", "rosario", "asimismo",
+                      "mismo", "despues", "pues", "dijo", "indico",
+                      "refiere", "embargo", "dicha")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(motivo_dicriminacion) %>% 
+  summarise(texto = paste0(narracion_hechos, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, motivo_dicriminacion, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, motivo_dicriminacion, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(motivo_dicriminacion) %>% 
+  top_n(5) %>% 
+  ungroup() %>% 
+  filter(motivo_dicriminacion %in% c("Embarazo", "Género", "Edad", "Discapacidad", "Forma de actuar", "Condiciones de salud")) %>% 
+  ggplot(aes(bigram, tf_idf, fill = motivo_dicriminacion)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~motivo_dicriminacion, ncol = 3, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, motivo_dicriminacion, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(motivo_dicriminacion) %>% 
+  top_n(5) %>% 
+  ungroup() %>% 
+  filter(motivo_dicriminacion %in% c("Embarazo", "Género", "Edad", "Condiciones de salud", "Discapacidad", "Forma de actuar")) %>% 
+  acast(bigram ~ motivo_dicriminacion,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.1), title.size = 1)
+```
+
+### Correlación de palabras
+
+#### Embarazo
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = motivo_dicriminacion, texto = narracion_hechos) %>% 
+  filter(motivo == "Embarazo") %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 20) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .5) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+#### Condiciones de salud
+
+```{r, echo=FALSE}
+base_reportes %>% 
+  select(motivo = motivo_dicriminacion, texto = narracion_hechos) %>% 
+  filter(motivo == "Condiciones de salud") %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 15) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .45) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+#### Género
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = motivo_dicriminacion, texto = narracion_hechos) %>% 
+  filter(motivo == "Género") %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 12) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .45) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```

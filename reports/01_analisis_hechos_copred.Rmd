@@ -19,7 +19,7 @@ Se realiza un análisis exploratorio de los datos que proporcionó COPRED y un a
 ### Mini EDA 
 
 ```{r, echo=FALSE}
-base_reportes_raw <- readxl::read_xlsx("data/RPORTE HECHOS COPRED (ok).xlsx", sheet = 1)
+base_reportes_raw <- readxl::read_xlsx("")
 ```
 
 ### TF_IDF
