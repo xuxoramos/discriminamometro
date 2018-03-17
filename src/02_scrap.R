@@ -2,7 +2,7 @@ install.packages("rvest")
 library(rvest)
 
 # Create a variable holding the url information
-url <- 'https://twitter.com/hashtag/lapazbatchoy?src=hash' 
+url <- 'https://twitter.com/hashtag/puto?src=hash' 
 # Parse the html code downloaded from url
 twitter <- read_html(url)
 
@@ -17,3 +17,5 @@ users <- html_text(users)
 # Extract number of time tweet was favorited
 favorited <- html_nodes(twitter, ".js-actionFavorite .ProfileTweet-actionCountForPresentation")
 favorited <- html_text(favorited)
+
+

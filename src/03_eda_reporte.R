@@ -2,7 +2,7 @@
 
 rm(list = ls())
 
-library(xlsx)
+#library(xlsx)
 library(tidyverse)
 library(magrittr)
 library(tidytext)
@@ -12,8 +12,9 @@ library(reshape2)
 library(wordcloud)
 library(topicmodels)
 
-base_reportes_raw <- readxl::read_xlsx("data/RPORTE HECHOS COPRED (ok).xlsx", 
-                                   sheet = 1)
+#base_reportes_raw <- readxl::read_xlsx("data/RPORTE HECHOS COPRED (ok).xlsx", sheet = 1)
+
+base_reportes_raw <- read_csv("data/hechos.csv")
 
 glimpse(base_reportes_raw)
 
@@ -79,16 +80,19 @@ base_nar_motivo <- base_reportes %>%
   na.omit() 
 
 base_nar_motivo %>% 
+  filter(word != 'na') %>% 
   bind_tf_idf(word, motivo_dicriminacion, n) %>% 
   acast(word ~ motivo_dicriminacion,
         value.var = 'tf_idf',
         fill = 0) %>% 
-  comparison.cloud(max.words = 300, scale = c(4, 0.1), title.size = 1.5)
+  comparison.cloud(max.words = 300, title.size = 1)
 
-#topic modeling
+#topic m  odeling
 
-lda_base <- base_nar_motivo %>%
+lda_base <- base_nar_motivo %>% 
+  mutate(num = str_replace(word, '[^[:alpha:]]+',"")) %>% 
+  filter(num != "") %>% 
   cast_dtm(motivo_dicriminacion, word, n) %>% 
-  topicmodels::LDA(base_nar_motivo, k = 5, control = list(seed = 1234))
+  topicmodels::LDA(k = 5, control = list(seed = 1234))
 
 
