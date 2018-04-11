@@ -1,0 +1,1124 @@
+---
+title: "COPRED twitter dummy"
+output: html_notebook
+---
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+#library(xlsx)
+library(tidyverse)
+library(magrittr)
+library(tidytext)
+library(tm)
+library(stringi)
+library(reshape2)
+library(wordcloud)
+library(topicmodels)
+library(widyr)
+library(stringr)
+library(forcats)
+library(plotly)
+library(arulesViz)
+library(arules)
+library(ggraph)
+library(igraph)
+```
+
+## Introducción {.tabset .tabset-fade .tabset-pills}
+
+Se realiza un análisis exploratorio de los tweets de los últimos 7 días por motivo de discriminación y un análisis de texto de los mismos.
+
+### Género
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_genero_raw <- read_rds("../data/tweets/base_genero.RDS")
+base_genero <- base_genero_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_genero)
+```
+
+- Dentro del motivo de discriminacios género se cuentan con 10 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_genero %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_genero %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_genero %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "ricardo",
+                                  "anaya", "https", "tommyballent", "t.co")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres","feminazi")) %>%  
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres")) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 1, scales = "free") +
+  coord_flip()
+
+bigram %>% 
+  filter(tipo == "feminazi") %>%  
+  group_by(tipo) %>% 
+  top_n(1) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo_2 %>% 
+  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres", "feminazi")) %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.1), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres","feminazi")) %>%  
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres")) %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 1, scales = "free") +
+  coord_flip()
+
+trigram %>% 
+  filter(tipo == "feminazi") %>%  
+  group_by(tipo) %>% 
+  top_n(1) %>% 
+  ungroup() %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 10) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .4) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+### Orientación/Identidad sexual
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_orientacion_raw <- read_rds("../data/tweets/base_orientacion.RDS")
+base_orientacion <- base_orientacion_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_orientacion)
+```
+
+- Dentro del motivo de discriminacios Orientación/Identidad sexual se cuentan con 8 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_orientacion %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_orientacion %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_orientacion %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "https", "t.co", "jay", "z", "alejqnl", "freitql", "imdrive_", "xxxmontana_", "ultraeventsla", "alanomarbarajas", "notpulga", "imstrikez", "luna_rickardo")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% 
+           c("pinche_puto", "lesbiana", "joto", "punial")) %>%  
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  filter(tipo %in% 
+           c("pinche_puto", "arroz_popote", "lesbiana", "joto", "punial")) %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo_2 %>% 
+  filter(tipo %in% c("pinche_puto", "lesbiana", "joto", "punial")) %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.6), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  filter(tipo %in% c("pinche_puto", "lesbiana", "joto", "punial")) %>%  
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  filter(tipo %in% c("pinche_puto", "lesbiana", "punial")) %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+
+trigram %>% 
+  filter(tipo == "joto") %>%  
+  group_by(tipo) %>% 
+  top_n(1) %>% 
+  ungroup() %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 10) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .3) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+### Ideoligía política
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_ideologia_raw <- read_rds("../data/tweets/base_ideologia.RDS")
+base_ideologia <- base_ideologia_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_ideologia)
+```
+
+- Dentro del motivo de discriminacios Ideoligía política se cuentan con 3 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_ideologia %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_ideologia %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_ideologia %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "https", "t.co", "ja", "gardeniojr", "nellogomez","ghost_cookies_", "tommyballent", 
+                                  "geororellano", "luisen_sanzat"," sergioaguayo",
+                                  "mzavalagc", "ricardoanayac", "richiegoe", "yare_quinones")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.4), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  group_by(tipo) %>% 
+  top_n(2) %>% 
+  ungroup() %>% 
+  filter(tipo != "feminazi") %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 10) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .3) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+### Apariencia
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_apariencia_raw <- read_rds("../data/tweets/base_apariencia.RDS")
+base_apariencia <- base_apariencia_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_apariencia)
+```
+
+- Dentro del motivo de discriminacios apariencia se cuentan con 10 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_apariencia %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_apariencia %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_apariencia %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "https", "t.co", "ja", "jajajajajajaja")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% c("naco", "pinche_gordo", "jodido", "pinche_pobre", "chacha")) %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.2), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  filter(tipo %in% c("naco", "pinche_gordo", "pinche_pobre")) %>% 
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  group_by(tipo) %>% 
+  top_n(3) %>% 
+  ungroup() %>% 
+  filter(tipo != "feminazi") %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 10) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .3) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+### Religión
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_religion_raw <- read_rds("../data/tweets/base_religion.RDS")
+base_religion <- base_religion_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_religion)
+```
+
+- Dentro del motivo de discriminacios religion se cuentan con 4 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_religion %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_religion %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_religion %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "https", "t.co", "ja", "jajajajajajaja", "clvtp", "lwdq3ignalsabias")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.5), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  group_by(tipo) %>% 
+  top_n(3) %>% 
+  ungroup() %>% 
+  filter(tipo != "testigos_jehova") %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 2) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .2) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+### Edad
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_edad_raw <- read_rds("../data/tweets/base_edad.RDS")
+base_edad <- base_edad_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_edad)
+```
+
+- Dentro del motivo de discriminacios edad se cuentan con 6 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_edad %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_edad %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_edad %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "https", "t.co", "ja", "jajajajajajaja", "clvtp", "lwdq3ignalsabias")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.5), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  group_by(tipo) %>% 
+  top_n(2) %>% 
+  ungroup() %>% 
+  filter(tipo != "testigos_jehova") %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 10) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .2) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+### Discapacidad
+
+#### Mini EDA 
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+base_discapacidad_raw <- read_rds("../data/tweets/base_discapacidad.RDS")
+base_discapacidad <- base_discapacidad_raw %>% 
+  filter(!str_detect(text, "^RT")) 
+```
+
+- Dimensión
+
+```{r, echo=FALSE, message=FALSE}
+dim(base_discapacidad)
+```
+
+- Dentro del motivo de discriminacios discapacidad se cuentan con 3 adjetivos.
+
+```{r, echo=FALSE, message=FALSE}
+adj <- base_discapacidad %>% 
+  .$tipo %>% 
+  unique() %>% 
+  length()
+
+base_discapacidad %>% 
+  group_by(tipo) %>% 
+  tally() %>% 
+  arrange(desc(n))
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- base_discapacidad %>% 
+  select(text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+stop_words <- data.frame(word = c(tm::stopwords(kind = "es"), "xd", "https", "t.co", "ja", "jajajajajajaja", "clvtp", "lwdq3ignalsabias")) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+base_nar_motivo_2 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, texto, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  group_by(tipo) %>% 
+  top_n(4) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.5), title.size = 1)
+```
+
+- TF_IDF con tres palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_3 <- base_reportes %>% 
+  group_by(tipo) %>% 
+  summarise(texto = paste0(text, collapse = "")) %>% 
+  ungroup() %>% 
+  unnest_tokens(trigram, texto, token = "ngrams", n = 3) %>% 
+  mutate(trigram = stri_trans_general(trigram, id = "Latin-ASCII")) %>% 
+  count(trigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>% 
+  unite(trigram, word1, word2, word3, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+trigram <- base_nar_motivo_3 %>% 
+  bind_tf_idf(trigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
+
+trigram %>% 
+  group_by(tipo) %>% 
+  top_n(2) %>% 
+  ungroup() %>% 
+  filter(tipo != "testigos_jehova") %>% 
+  ggplot(aes(trigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 10) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .2) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+### Salud
