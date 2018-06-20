@@ -40,7 +40,34 @@ ui <- fluidPage(
           box(
             title = "Motivo de discriminación", width = NULL,
             textOutput("table")
-            )
+            ),
+          fluidRow(
+                   box(
+                     title = "Orientación",width = 4, height = 300,
+                     column(width=3, align="center",
+                     img(src="word_orientacion.png", width=200))),
+                   box(
+                     title = "Género",width = 4, height = 300,
+                     column(width=3, align="center",
+                            img(src="word_genero.png", width=200))),
+                   box(
+                     title = "Apariencia",width = 4, height = 300,
+                     column(width=3, align="center",
+                            img(src="word_apar.png", width=200))),
+                   box(
+                     title = "discapacidad",width = 4, height = 300,
+                     column(width=3, align="center",
+                            img(src="word_disc.png", width=200))),
+                   box(
+                     title = "Edad",width = 4, height = 300,
+                     column(width=3, align="center",
+                            img(src="word_edad.png", width=200))),
+                   box(
+                     title = "Ideología",width = 4, height = 300,
+                     column(width=3, align="center",
+                            img(src="word_ideo.png", width=200)))
+          )
+          
           )  
     )
     )
