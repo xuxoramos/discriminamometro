@@ -7,6 +7,7 @@ library(stringr)
 library(stopwords)
 library(tidytext)
 library(tm)
+library(e1071)
 
 server <- function(input, output) {
 
