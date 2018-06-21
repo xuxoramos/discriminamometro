@@ -3,10 +3,10 @@
 library(twitteR)
 
 # llaves
-tw_api_key <- 'QOe4KhUucn8hRP9pJ2q2QYksn'
-tw_api_secret <- 'HYiwanxtHDuaew2mnEXgCVhVxD3zEEZo77K8ihJDZhqPBrmhdo'
-access_token <- '777720164011773953-10EFKORqQpsdFsCnfsTY4P7iko6SkIW'
-access_secret <- 'c8xKppCWwpU2veAuTW6bGMfSoSlkA1GnlD9Rh3isDbyu9'
+tw_api_key <- 'QOe4KhUucn8hRP9pJ2q2QYksnn'
+tw_api_secret <- 'HYiwanxtHDuaew2mnEXgCVhVxD3zEEZo77K8ihJDZhqPBrmhdoo'
+access_token <- '777720164011773953-10EFKORqQpsdFsCnfsTY4P7iko6SkIWW'
+access_secret <- 'c8xKppCWwpU2veAuTW6bGMfSoSlkA1GnlD9Rh3isDbyu99'
 
 setup_twitter_oauth(tw_api_key, tw_api_secret, access_token, access_secret)
 
