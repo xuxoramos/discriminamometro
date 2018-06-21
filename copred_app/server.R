@@ -8,10 +8,6 @@ library(stopwords)
 library(tidytext)
 library(tm)
 library(e1071)
-library(RTextTools)
-library(caret)
-library(caTools)
-library(rpart)
 
 server <- function(input, output) {
 
@@ -28,7 +24,8 @@ server <- function(input, output) {
              tweet_text = tweet_text %>% 
                stri_trans_general(id = "Latin-ASCII")) %>% 
       unnest_tokens(word, tweet_text) %>%
-      inner_join(palabras) %>% 
+      inner_join(palabras) %>%
+      unique() %>%
       mutate(unos = 1) %>% 
       spread(word,unos, fill = 0)
     if(nrow(tew)==0){
@@ -45,6 +42,12 @@ server <- function(input, output) {
       "Ideología"
     }else if (pre() == "orientacion"){
       "Orientación"
+    }else if (pre() == "discapacidad"){
+      "Discapacidad"
+    }else if (pre() == "apariencia"){
+      "Apariencia"
+    }else if (pre() == "edad"){
+      "Edad"
     }else{
       pre() 
     }
