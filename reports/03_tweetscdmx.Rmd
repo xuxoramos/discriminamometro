@@ -1,0 +1,332 @@
+---
+title: "Tweets de mexicanos"
+output: html_notebook
+---
+
+Se tiene una base con 459549 tweets de 1009 (si se cuentan los distintos ids) ciudadanos de la cdmx.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=FALSE}
+#Script lecutra y clasificación de tweets
+
+library(tidyverse)
+library(tidytext)
+library(igraph)
+library(ggraph)
+library(wordcloud)
+library(magrittr)
+library(tm)
+library(stringi)
+library(reshape2)
+library(topicmodels)
+library(widyr)
+library(stringr)
+library(forcats)
+library(plotly)
+library(arulesViz)
+library(arules)
+
+tweets_raw <- read_csv("../data/tweets_cuentascdmx.csv")
+data.frame(tweets = nrow(tweets_raw),tweets_id = tweets_raw$user_id %>%  unique() %>% length())
+```
+
+## Primer análisis
+
+```{r, echo=FALSE, warning=FALSE, comment=FALSE, message=FALSE}
+#stopwords
+stop_words_es <- read_csv("../docs/stopwords_espanol.csv")
+#primer vistazo todos los tweets
+
+stop_words <- data.frame(word = c(c(stop_words_es$text, "xd", 
+                                  "https", "rt", "t.co", "quiero", 
+                                  "solo", "asi", "hoy", "dia", "jajaja",
+                                  "q"),
+                                  c(tm::stopwords(kind = "en")))) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII"))
+
+
+tweets_deporte <- tweets_raw %>% 
+  mutate(tweet_text = tweet_text %>% 
+           tolower() %>% 
+           str_replace("@", "zzz") %>% 
+           stri_trans_general(id = "Latin-ASCII"),
+         tipo = ifelse(str_detect(tweet_text, "pumas"), "deporte",
+                ifelse(str_detect(tweet_text, "futbol"), "deporte", 
+                ifelse(str_detect(tweet_text, "nfl"), "deporte",
+                ifelse(str_detect(tweet_text, "espn"), "deporte",
+                ifelse(str_detect(tweet_text, "sports"), "deporte",
+                ifelse(str_detect(tweet_text, "puma"), "deporte","nada")))))))
+    
+                                                
+tweets_sismo <- tweets_deporte %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "sismo"), "sismo",tipo))
+
+
+tweets_debate <- tweets_sismo %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "debate"), "debate", tipo))
+
+tweets_discriminacion <- tweets_debate %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "discriminacion"), "discriminacion", 
+                       ifelse(str_detect(tweet_text, "discriminar"), "discriminacion", tipo)))
+
+tweets_epn <- tweets_discriminacion %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "epn"), "epn", tipo))
+
+tweets_cumpleanos <- tweets_epn %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "cumpleanos"), "cumple", tipo))
+
+tweet_genero <- tweets_cumpleanos %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text,"luchona"), "genero", 
+                ifelse(str_detect(tweet_text,"vieja loca"), "genero",
+                ifelse(str_detect(tweet_text,"es de nina"), "genero",
+                ifelse(str_detect(tweet_text,"como nina"), "genero",
+                ifelse(str_detect(tweet_text,"como los hombre"), "genero",
+                ifelse(str_detect(tweet_text,"feminazi"), "genero",
+                ifelse(str_detect(tweet_text,"para que tienes hijos"), "genero", "nada"))))))))
+
+tweet_orientacion <- tweet_genero %>% 
+  filter(tipo != "genero") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text,"lesbiana"), "orientacion", 
+                ifelse(str_detect(tweet_text,"machorra"), "orientacion",
+                ifelse(str_detect(tweet_text,"maricon"), "orientacion",
+                ifelse(str_detect(tweet_text,"puto"), "orientacion",
+                ifelse(str_detect(tweet_text,"joto"), "orientacion",
+                ifelse(str_detect(tweet_text,"punal"), "orientacion",
+                ifelse(str_detect(tweet_text,"lencha"), "orientacion", 
+                ifelse(str_detect(tweet_text, "Le gusta el arroz con popote"), "orientacion",
+                       "nada")))))))))
+                                  
+
+tweet_ideoligia <- tweet_orientacion %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "chairo"), "idelogia", 
+                ifelse(str_detect(tweet_text, "derechairo"), "ideologia",
+                ifelse(str_detect(tweet_text, "chairos"), "idelogia", "nada"))))
+
+tweet_apariencia <- tweet_ideoligia %>%
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "naco"), "apariencia", 
+                ifelse(str_detect(tweet_text, "jodido"), "apariencia", 
+                ifelse(str_detect(tweet_text, "iztapalacra"), "apariencia",
+                ifelse(str_detect(tweet_text, "chacha"), "apariencia",
+                ifelse(str_detect(tweet_text, "pinch fresa"), "apariencia", 
+                ifelse(str_detect(tweet_text, "pinch negro"), "apariencia",
+                ifelse(str_detect(tweet_text, "pinche grodo"), "apariencia",
+                ifelse(str_detect(tweet_text, "pinche indio"), "apariencia",
+                ifelse(str_detect(tweet_text, "pinche pobre"), "apariencia",
+                ifelse(str_detect(tweet_text, "guerito"), "apariencia", tipo )))))))))))
+
+tweet_religion <- tweet_apariencia %>% 
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "testiculos de jehova"), "religion",
+                ifelse(str_detect(tweet_text, "judio"), "religion",
+                ifelse(str_detect(tweet_text, "testigos de Jehova"), "religion",tipo))))
+
+tweet_edad <- tweet_religion %>%
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "pinche viejo"), "edad",
+                ifelse(str_detect(tweet_text, "pinche nino"), "edad",
+                ifelse(str_detect(tweet_text, "pareces nino chiquito"), "edad",
+                ifelse(str_detect(tweet_text, "es chavo"), "edad",
+                ifelse(str_detect(tweet_text, "chavorruco"), "edad",
+                ifelse(str_detect(tweet_text, "chavoruco"), "edad",
+                ifelse(str_detect(tweet_text, "nini"), "edad", tipo))))))))
+
+tweet_discapacidad <- tweet_edad %>%
+  filter(tipo == "nada") %>% 
+  mutate(tipo = ifelse(str_detect(tweet_text, "nino teleton"), "discapacidad",
+                ifelse(str_detect(tweet_text, "discapacitado"), "discapacidad", "nada")))
+
+tweets_calsif <- rbind(tweet_apariencia, tweet_discapacidad, tweet_genero, tweet_orientacion,
+                       tweet_genero, tweet_ideoligia, tweet_religion, tweet_edad, tweet_discapacidad) %>% 
+  filter(tipo != "nada")
+tweets_calsif %>% 
+  group_by(tipo) %>% tally()
+```
+
+#### TF_IDF
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes <- tweets_calsif %>% 
+  select(tweet_text, tipo)
+```
+
+- TF_IDF con dos palabras
+
+```{r, echo = FALSE, message=FALSE}
+base_nar_motivo_2 <- base_reportes %>% 
+  ungroup() %>% 
+  unnest_tokens(bigram, tweet_text, token = "ngrams", n = 2) %>% 
+  mutate(bigram = stri_trans_general(bigram, id = "Latin-ASCII")) %>% 
+  count(bigram, tipo, sort = TRUE) %>% 
+  na.omit() %>% 
+  separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite(bigram, word1, word2, sep = " ")
+```
+
+```{r, echo=FALSE, message=FALSE}
+bigram <- base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
+
+bigram %>% 
+  group_by(tipo) %>% 
+  top_n(6) %>% 
+  ungroup() %>% 
+  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+```{r, echo=FALSE, message=FALSE}
+base_nar_motivo_2 %>% 
+  bind_tf_idf(bigram, tipo, n) %>% 
+  arrange(desc(tf_idf)) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  group_by(tipo) %>% 
+  top_n(7) %>% 
+  ungroup() %>% 
+  acast(bigram ~ tipo,
+        value.var = 'tf_idf',
+        fill = 0) %>% 
+  comparison.cloud(max.words = 100, scale = c(1, 0.1), title.size = 1)
+```
+
+#### Correlación de palabras
+
+##### Completas
+
+```{r, echo=FALSE, message=FALSE}
+base_reportes %>% 
+  select(motivo = tipo, texto = tweet_text) %>% 
+  unique() %>% 
+  mutate(linea = row_number(),
+         texto = as.character(texto)) %>% 
+  select(-motivo) %>% 
+  unnest_tokens(word, texto) %>% 
+  mutate(word = stri_trans_general(word, id = "Latin-ASCII")) %>%
+  filter(!word %in% stop_words$word) %>% 
+  group_by(word) %>% 
+  filter(n() >= 8) %>%
+  pairwise_cor(word, linea, sort = TRUE) %>% 
+  filter(correlation > .4) %>% 
+  graph_from_data_frame() %>% 
+  ggraph() +
+  geom_edge_link(aes(edge_alpha = correlation), show.legend = FALSE) +
+  geom_node_point(color = "grey", size = 3) +
+  geom_node_text(aes(label = name), repel = TRUE) +
+  theme_void() 
+```
+
+## Análisis General sin categoría
+
+- Top 20 de palabras que más se repiten 
+
+```{r, echo=FALSE}
+tweetsk <- tweets_raw %>% 
+  select(tweet_text) %>% 
+  mutate(tweet_text = tweet_text %>% 
+           stri_trans_general(id = "Latin-ASCII") %>% 
+           str_replace("@", "zzz")) %>% 
+  unnest_tokens(word, tweet_text) %>%
+  filter(!str_detect(word,"zzz"),
+         !word %in% stop_words$word) %>% 
+  count(word, sort = TRUE)
+
+head(tweetsk, 20)
+```
+
+### Topic model
+
+```{r, echo=FALSE}
+tweets_tm <- tweets_raw %>% 
+  select(user_id, tweet_text) %>% 
+  mutate(tweet_text = tweet_text %>% 
+           stri_trans_general(id = "Latin-ASCII") %>% 
+           str_replace("@", "zzz")) %>% 
+  unnest_tokens(word, tweet_text) %>%
+  filter(!str_detect(word,"zzz"),
+         !word %in% stop_words$word) %>% 
+  count(user_id, word, sort = TRUE)
+
+chapters_dtm <- tweets_tm %>%
+  cast_dtm(user_id, word, n)
+
+
+chapters_lda <- LDA(chapters_dtm, k = 5, control = list(seed = 1234))
+chapters_lda
+
+chapter_topics <- tidy(chapters_lda, matrix = "beta")
+chapter_topics
+
+
+top_terms <- chapter_topics %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+top_terms
+
+top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+```
+
+### Topic model bigram
+
+```{r}
+tweets_tm <- tweets_raw %>% 
+  select(user_id, tweet_text) %>% 
+  mutate(tweet_text = tweet_text %>% 
+           stri_trans_general(id = "Latin-ASCII") %>% 
+           str_replace("@", "zzz")) %>% 
+  unnest_tokens(word, tweet_text, token = "ngrams", n = 2) %>%
+  separate(word, c("word1", "word2"), sep = " ") %>% 
+  filter(!str_detect(word1,"zzz"),
+         !str_detect(word2,"zzz"),
+         !word1 %in% stop_words$word,
+         !word2 %in% stop_words$word) %>% 
+  unite("word", c("word1", "word2"), sep = " ") %>%
+  count(user_id, word, sort = TRUE)
+
+chapters_dtm <- tweets_tm %>%
+  cast_dtm(user_id, word, n)
+
+
+chapters_lda <- LDA(chapters_dtm, k = 5, control = list(seed = 1234))
+chapters_lda
+
+chapter_topics <- tidy(chapters_lda, matrix = "beta")
+chapter_topics
+
+
+top_terms <- chapter_topics %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+top_terms
+
+top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+```
+

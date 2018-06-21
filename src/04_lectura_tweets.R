@@ -22,7 +22,7 @@ tw <- twitteR::searchTwitter('vieja+loca',
 
 vieja_loca <- twitteR::twListToDF(tw)
 
-saveRDS(vieja_loca, "discriminating-words/data/tweets/genero/vieja_loca_geo.RDS")
+saveRDS(vieja_loca, "discriminating-words/data2/tweets/genero/vieja_loca_geo.RDS")
 
 ##mamá luchona
 
@@ -33,7 +33,7 @@ tw <- twitteR::searchTwitter('mama+luchona',
 
 mama_luchona<- twitteR::twListToDF(tw)
 
-saveRDS(mama_luchona, "discriminating-words/data/tweets/genero/mama_luchona.RDS")
+saveRDS(mama_luchona, "discriminating-words/data2/tweets/genero/mama_luchona.RDS")
 
 #como niña
 
@@ -44,7 +44,7 @@ tw <- twitteR::searchTwitter('como niña',
 
 como_nina <- twitteR::twListToDF(tw)
 
-saveRDS(como_nina, "discriminating-words/data/tweets/genero/como_nina.RDS")
+saveRDS(como_nina, "discriminating-words/data2/tweets/genero/como_nina.RDS")
 
 ##es de niña
 
@@ -55,7 +55,7 @@ tw <- twitteR::searchTwitter('es de niña',
 
 es_de_nina <- twitteR::twListToDF(tw)
 
-saveRDS(es_de_nina, "discriminating-words/data/tweets/genero/es_de_nina.RDS")
+saveRDS(es_de_nina, "discriminating-words/data2/tweets/genero/es_de_nina.RDS")
 
 #como los hombres
 
@@ -66,7 +66,7 @@ tw <- twitteR::searchTwitter('como los hombres',
 
 como_hombre <- twitteR::twListToDF(tw)
 
-saveRDS(como_hombre, "discriminating-words/data/tweets/genero/como_hombre.RDS")
+saveRDS(como_hombre, "discriminating-words/data2/tweets/genero/como_hombre.RDS")
 
 #para qué tienes hijos
 
@@ -77,7 +77,7 @@ tw <- twitteR::searchTwitter('para+que+tienes+hijos',
 
 tienes_hijos <- twitteR::twListToDF(tw)
 
-saveRDS(tienes_hijos, "discriminating-words/data/tweets/genero/tienes_hijos.RDS")
+saveRDS(tienes_hijos, "discriminating-words/data2/tweets/genero/tienes_hijos.RDS")
 
 #veja pendeja
 
@@ -88,7 +88,7 @@ tw <- twitteR::searchTwitter('vieja pendeja',
 
 veja_pendeja <- twitteR::twListToDF(tw)
 
-saveRDS(veja_pendeja, "discriminating-words/data/tweets/genero/veja_pendeja.RDS")
+saveRDS(veja_pendeja, "discriminating-words/data2/tweets/genero/veja_pendeja.RDS")
 
 #discriminacion embarazada
 
@@ -99,7 +99,7 @@ tw <- twitteR::searchTwitter('discriminacion embarazada',
 
 discriminacion_embarazada <- twitteR::twListToDF(tw)
 
-saveRDS(discriminacion_embarazada, "discriminating-words/data/tweets/genero/discriminacion_embarazada.RDS")
+saveRDS(discriminacion_embarazada, "discriminating-words/data2/tweets/genero/discriminacion_embarazada.RDS")
 
 #discriminacion mujeres
 
@@ -110,7 +110,7 @@ tw <- twitteR::searchTwitter('discriminacion mujeres',
 
 discriminacion_mujeres <- twitteR::twListToDF(tw)
 
-saveRDS(discriminacion_mujeres, "discriminating-words/data/tweets/genero/discriminacion_mujeres.RDS")
+saveRDS(discriminacion_mujeres, "discriminating-words/data2/tweets/genero/discriminacion_mujeres.RDS")
 
 ## feminazi
 
@@ -121,7 +121,7 @@ tw <- twitteR::searchTwitter('feminazi',
 
 feminazi <- twitteR::twListToDF(tw)
 
-saveRDS(feminazi, "discriminating-words/data/tweets/genero/feminazi.RDS")
+saveRDS(feminazi, "discriminating-words/data2/tweets/genero/feminazi.RDS")
 
 # orientación/identidad sexual --------------------------------------------
 
@@ -134,7 +134,7 @@ tw <- twitteR::searchTwitter('pinche lesbiana',
 
 pinche_lesbiana <- twitteR::twListToDF(tw)
 
-saveRDS(pinche_lesbiana, "discriminating-words/data/tweets/orientacion/pinche_lesbiana.RDS")
+saveRDS(pinche_lesbiana, "discriminating-words/data2/tweets/orientacion/pinche_lesbiana.RDS")
 
 ## lesbiana
 
@@ -145,7 +145,7 @@ tw <- twitteR::searchTwitter('lesbiana',
 
 lesbiana <- twitteR::twListToDF(tw)
 
-saveRDS(lesbiana, "discriminating-words/data/tweets/orientacion/lesbiana.RDS")
+saveRDS(lesbiana, "discriminating-words/data2/tweets/orientacion/lesbiana.RDS")
 
 ##Le gusta el arroz con popote
 
@@ -156,7 +156,7 @@ tw <- twitteR::searchTwitter('arroz con popote',
 
 arroz_popote <- twitteR::twListToDF(tw)
 
-saveRDS(arroz_popote, "discriminating-words/data/tweets/orientacion/arroz_popote.RDS")
+saveRDS(arroz_popote, "discriminating-words/data2/tweets/orientacion/arroz_popote.RDS")
 
 ##puñal
 
@@ -167,7 +167,7 @@ tw <- twitteR::searchTwitter('puñal',
 
 punial <- twitteR::twListToDF(tw)
 
-saveRDS(punial, "discriminating-words/data/tweets/orientacion/punial.RDS")
+saveRDS(punial, "discriminating-words/data2/tweets/orientacion/punial.RDS")
 
 ##machorra
 
@@ -178,7 +178,7 @@ tw <- twitteR::searchTwitter('machorra',
 
 machorra <- twitteR::twListToDF(tw)
 
-saveRDS(machorra, "discriminating-words/data/tweets/orientacion/machorra.RDS")
+saveRDS(machorra, "discriminating-words/data2/tweets/orientacion/machorra.RDS")
 
 ## Pinche maricon
 
@@ -189,7 +189,7 @@ tw <- twitteR::searchTwitter('Pinche maricon',
 
 pinche_maricon <- twitteR::twListToDF(tw)
 
-saveRDS(pinche_maricon, "discriminating-words/data/tweets/orientacion/pinche_maricon.RDS")
+saveRDS(pinche_maricon, "discriminating-words/data2/tweets/orientacion/pinche_maricon.RDS")
 
 ##pinche puto
 
@@ -200,7 +200,7 @@ tw <- twitteR::searchTwitter('pinche puto',
 
 pinche_puto <- twitteR::twListToDF(tw)
 
-saveRDS(pinche_puto, "discriminating-words/data/tweets/orientacion/pinche_puto.RDS")
+saveRDS(pinche_puto, "discriminating-words/data2/tweets/orientacion/pinche_puto.RDS")
 
 ##joto
 
@@ -211,7 +211,7 @@ tw <- twitteR::searchTwitter('joto',
 
 joto <- twitteR::twListToDF(tw)
 
-saveRDS(joto, "discriminating-words/data/tweets/orientacion/joto.RDS")
+saveRDS(joto, "discriminating-words/data2/tweets/orientacion/joto.RDS")
 
 ##lencha 
 
@@ -222,7 +222,7 @@ tw <- twitteR::searchTwitter('lencha',
 
 lencha <- twitteR::twListToDF(tw)
 
-saveRDS(lencha, "discriminating-words/data/tweets/orientacion/lencha.RDS")
+saveRDS(lencha, "discriminating-words/data2/tweets/orientacion/lencha.RDS")
 
 
 
@@ -244,7 +244,7 @@ tw <- twitteR::searchTwitter('chairo',
 
 chairo <- twitteR::twListToDF(tw)
 
-saveRDS(chairo, "discriminating-words/data/tweets/ideologia_politica/chairo.RDS")
+saveRDS(chairo, "discriminating-words/data2/tweets/ideologia_politica/chairo.RDS")
 
 
 ##derechairo
@@ -256,7 +256,7 @@ tw <- twitteR::searchTwitter('derechairo',
 
 derechairo <- twitteR::twListToDF(tw)
 
-saveRDS(derechairo, "discriminating-words/data/tweets/ideologia_politica/derechairo.RDS")
+saveRDS(derechairo, "discriminating-words/data2/tweets/ideologia_politica/derechairo.RDS")
 
 ##feminazi
 
@@ -267,7 +267,7 @@ tw <- twitteR::searchTwitter('feminazi',
 
 feminazi <- twitteR::twListToDF(tw)
 
-saveRDS(feminazi, "discriminating-words/data/tweets/ideologia_politica/feminazi.RDS")
+saveRDS(feminazi, "discriminating-words/data2/tweets/ideologia_politica/feminazi.RDS")
 
 ##
 # Apariencia (tatuajes, pobreza, condición económica o social) ------------
@@ -281,7 +281,7 @@ tw <- twitteR::searchTwitter('naco',
 
 naco <- twitteR::twListToDF(tw)
 
-saveRDS(naco, "discriminating-words/data/tweets/apariencia/naco.RDS")
+saveRDS(naco, "discriminating-words/data2/tweets/apariencia/naco.RDS")
 
 ## jodido
 
@@ -292,7 +292,7 @@ tw <- twitteR::searchTwitter('jodido',
 
 jodido <- twitteR::twListToDF(tw)
 
-saveRDS(jodido, "discriminating-words/data/tweets/apariencia/jodido.RDS")
+saveRDS(jodido, "discriminating-words/data2/tweets/apariencia/jodido.RDS")
 
 ## iztapalacra
 
@@ -303,7 +303,7 @@ tw <- twitteR::searchTwitter('iztapalacra',
 
 iztapalacra <- twitteR::twListToDF(tw)
 
-saveRDS(iztapalacra, "discriminating-words/data/tweets/apariencia/iztapalacra.RDS")
+saveRDS(iztapalacra, "discriminating-words/data2/tweets/apariencia/iztapalacra.RDS")
 
 ## chacha
 
@@ -314,7 +314,7 @@ tw <- twitteR::searchTwitter('chacha',
 
 chacha <- twitteR::twListToDF(tw)
 
-saveRDS(chacha, "discriminating-words/data/tweets/apariencia/chacha.RDS")
+saveRDS(chacha, "discriminating-words/data2/tweets/apariencia/chacha.RDS")
 
 ## pinche_fresa
 
@@ -325,7 +325,7 @@ tw <- twitteR::searchTwitter('pinche fresa',
 
 pinche_fresa <- twitteR::twListToDF(tw)
 
-saveRDS(pinche_fresa, "discriminating-words/data/tweets/apariencia/pinche_fresa.RDS")
+saveRDS(pinche_fresa, "discriminating-words/data2/tweets/apariencia/pinche_fresa.RDS")
 
 ## pinche negro
 
@@ -336,7 +336,7 @@ tw <- twitteR::searchTwitter('pinche negro',
 
 pinche_negro <- twitteR::twListToDF(tw)
 
-saveRDS(pinche_negro, "discriminating-words/data/tweets/apariencia/pinche_negro.RDS")
+saveRDS(pinche_negro, "discriminating-words/data2/tweets/apariencia/pinche_negro.RDS")
 
 ## pinche gordo
 
@@ -347,7 +347,7 @@ tw <- twitteR::searchTwitter('pinche gordo',
 
 pinche_gordo<- twitteR::twListToDF(tw)
 
-saveRDS(pinche_gordo, "discriminating-words/data/tweets/apariencia/pinche_gordo.RDS")
+saveRDS(pinche_gordo, "discriminating-words/data2/tweets/apariencia/pinche_gordo.RDS")
 
 ## pinche indio
 
@@ -358,7 +358,7 @@ tw <- twitteR::searchTwitter('pinche indio',
 
 pinche_indio<- twitteR::twListToDF(tw)
 
-saveRDS(indio, "discriminating-words/data/tweets/apariencia/pinche_indio.RDS")
+saveRDS(indio, "discriminating-words/data2/tweets/apariencia/pinche_indio.RDS")
 
 ## pinche pobre
 
@@ -369,18 +369,8 @@ tw <- twitteR::searchTwitter('pinche pobre',
 
 pinche_pobre<- twitteR::twListToDF(tw)
 
-saveRDS(pinche_pobre, "discriminating-words/data/tweets/apariencia/pinche_pobre.RDS")
+saveRDS(pinche_pobre, "discriminating-words/data2/tweets/apariencia/pinche_pobre.RDS")
 
-## pinche indio
-
-tw <- twitteR::searchTwitter('pinche indio', 
-                             n = 5000, 
-                             retryOnRateLimit = 500,
-                             geocode='19.382099,-99.136102,90km')
-
-pinche_indio<- twitteR::twListToDF(tw)
-
-saveRDS(pinche_indio, "discriminating-words/data/tweets/apariencia/pinche_indio.RDS")
 
 ## guerito
 
@@ -391,7 +381,7 @@ tw <- twitteR::searchTwitter('guerito',
 
 guerito <- twitteR::twListToDF(tw)
 
-saveRDS(guerito, "discriminating-words/data/tweets/apariencia/guerito.RDS")
+saveRDS(guerito, "discriminating-words/data2/tweets/apariencia/guerito.RDS")
 
 # religion ----------------------------------------------------------------
 
@@ -404,7 +394,7 @@ tw <- twitteR::searchTwitter('pinche judio',
 
 pinche_judio <- twitteR::twListToDF(tw)
 
-saveRDS(pinche_judio, "discriminating-words/data/tweets/religion/pinche_judio_geo.RDS")
+saveRDS(pinche_judio, "discriminating-words/data2/tweets/religion/pinche_judio_geo.RDS")
 
 ## testiculos de jehova
 tw <- twitteR::searchTwitter('testiculos de jehova', 
@@ -414,7 +404,7 @@ tw <- twitteR::searchTwitter('testiculos de jehova',
 
 testiculos_jehova <- twitteR::twListToDF(tw)
 
-saveRDS(testiculos_jehova, "discriminating-words/data/tweets/religion/testiculos_jehova.RDS")
+saveRDS(testiculos_jehova, "discriminating-words/data2/tweets/religion/testiculos_jehova.RDS")
 
 ##testigos de Jehova
 
@@ -425,9 +415,9 @@ tw <- twitteR::searchTwitter('testigos de Jehova',
 
 testigos_jehova <- twitteR::twListToDF(tw)
 
-saveRDS(testigos_jehova, "discriminating-words/data/tweets/religion/testigos_jehova.RDS")
+saveRDS(testigos_jehova, "discriminating-words/data2/tweets/religion/testigos_jehova.RDS")
 
-##testigos de Jehova
+##religioso pendejo
 
 tw <- twitteR::searchTwitter('religioso pendejo', 
                              n = 10000, 
@@ -436,7 +426,7 @@ tw <- twitteR::searchTwitter('religioso pendejo',
 
 religioso_pendejo <- twitteR::twListToDF(tw)
 
-saveRDS(religioso_pendejo, "discriminating-words/data/tweets/religion/religioso_pendejo.RDS")
+saveRDS(religioso_pendejo, "discriminating-words/data2/tweets/religion/religioso_pendejo.RDS")
 
 
 
@@ -451,7 +441,7 @@ tw <- twitteR::searchTwitter('pinche viejo',
 
 pinche_viejo<- twitteR::twListToDF(tw)
 
-saveRDS(pinche_viejo, "discriminating-words/data/tweets/edad/pinche_vieji.RDS")
+saveRDS(pinche_viejo, "discriminating-words/data2/tweets/edad/pinche_vieji.RDS")
 
 ## pinche ninio
 
@@ -462,7 +452,7 @@ tw <- twitteR::searchTwitter('pinche nino',
 
 pinche_ninio<- twitteR::twListToDF(tw)
 
-saveRDS(pinche_ninio, "discriminating-words/data/tweets/edad/pinche_ninio.RDS")
+saveRDS(pinche_ninio, "discriminating-words/data2/tweets/edad/pinche_ninio.RDS")
 
 ## pareces_nino_chiquito
 
@@ -473,7 +463,7 @@ tw <- twitteR::searchTwitter('pareces nino chiquito',
 
 pareces_nino_chiquito<- twitteR::twListToDF(tw)
 
-saveRDS(pareces_nino_chiquito, "discriminating-words/data/tweets/edad/pareces_nino_chiquito.RDS")
+saveRDS(pareces_nino_chiquito, "discriminating-words/data2/tweets/edad/pareces_nino_chiquito.RDS")
 
 ##es_chavo
 
@@ -484,7 +474,7 @@ tw <- twitteR::searchTwitter('es chavo',
 
 es_chavo <- twitteR::twListToDF(tw)
 
-saveRDS(es_chavo, "discriminating-words/data/tweets/edad/es_chavo.RDS")
+saveRDS(es_chavo, "discriminating-words/data2/tweets/edad/es_chavo.RDS")
 
 ##chavoruco 
 
@@ -500,7 +490,7 @@ tw_2 <- twitteR::searchTwitter('chavoruco',
 
 chavoruco <- rbind(twitteR::twListToDF(tw), twitteR::twListToDF(tw_2))
 
-saveRDS(chavoruco, "discriminating-words/data/tweets/edad/chavoruco.RDS")
+saveRDS(chavoruco, "discriminating-words/data2/tweets/edad/chavoruco.RDS")
 
 ##nini
 
@@ -511,7 +501,7 @@ tw <- twitteR::searchTwitter('NINI',
 
 nini <- twitteR::twListToDF(tw)
 
-saveRDS(nini, "discriminating-words/data/tweets/edad/nini.RDS")
+saveRDS(nini, "discriminating-words/data2/tweets/edad/nini.RDS")
 
 
 # discapacidad ------------------------------------------------------------
@@ -524,7 +514,7 @@ tw <- twitteR::searchTwitter('ciego',
 
 ciego <- twitteR::twListToDF(tw)
 
-saveRDS(ciego, "discriminating-words/data/tweets/discapacidad/ciego.RDS")
+saveRDS(ciego, "discriminating-words/data2/tweets/discapacidad/ciego.RDS")
 
 ##cojo
 tw <- twitteR::searchTwitter('cojo', 
@@ -534,7 +524,7 @@ tw <- twitteR::searchTwitter('cojo',
 
 cojo <- twitteR::twListToDF(tw)
 
-saveRDS(cojo, "discriminating-words/data/tweets/discapacidad/cojo.RDS")
+saveRDS(cojo, "discriminating-words/data2/tweets/discapacidad/cojo.RDS")
 
 ##discapacitado
 
@@ -545,7 +535,7 @@ tw <- twitteR::searchTwitter('discapacitado',
 
 discapacitado <- twitteR::twListToDF(tw)
 
-saveRDS(discapacitado, "discriminating-words/data/tweets/discapacidad/discapacitado.RDS")
+saveRDS(discapacitado, "discriminating-words/data2/tweets/discapacidad/discapacitado.RDS")
 
 
 

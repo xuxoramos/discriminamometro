@@ -26,8 +26,8 @@ tienes_hijos <- read_rds("discriminating-words/data/tweets/genero/tienes_hijos.R
 vieja_pendeja <- read_rds("discriminating-words/data/tweets/genero/veja_pendeja.RDS") %>% 
   mutate(tipo = "vieja_pendeja")
 
-discriminacion_embarazada <- read_rds("discriminating-words/data/tweets/genero/discriminacion_embarazada.RDS") %>% 
-  mutate(tipo = "discriminacion_embarazada")
+# discriminacion_embarazada <- read_rds("discriminating-words/data/tweets/genero/discriminacion_embarazada.RDS") %>% 
+#   mutate(tipo = "discriminacion_embarazada")
 
 discriminacion_mujeres <- read_rds("discriminating-words/data/tweets/genero/discriminacion_mujeres.RDS") %>% 
   mutate(tipo = "discriminacion_mujeres")
@@ -36,7 +36,7 @@ feminazi <- read_rds("discriminating-words/data/tweets/genero/feminazi.RDS") %>%
   mutate(tipo = "feminazi")
 
 base_genero <- rbind(como_nina, es_de_nina, mama_luchona, vieja_loca, como_hombre,
-                     tienes_hijos, vieja_pendeja, discriminacion_embarazada, 
+                     tienes_hijos, vieja_pendeja,
                      discriminacion_mujeres, feminazi) %>% 
   mutate(motivo = "genero")
 
@@ -89,7 +89,7 @@ feminazi <- read_rds("discriminating-words/data/tweets/ideologia_politica/femina
   mutate(tipo = "feminazi")
 
 base_ideologia <- rbind(chairo, derechairo, feminazi) %>% 
-  mutate(motivo = "ideoligia")
+  mutate(motivo = "ideologia")
 
 
 saveRDS(base_ideologia, "discriminating-words/data/tweets/base_ideologia.RDS")
@@ -119,7 +119,7 @@ pinche_gordo <- read_rds("discriminating-words/data/tweets/apariencia/pinche_gor
   mutate(tipo = "pinche_gordo")
 
 pinche_indio <- read_rds("discriminating-words/data/tweets/apariencia/pinche_indio.RDS") %>% 
-  mutate(tipo = "pinche_indio")
+   mutate(tipo = "pinche_indio")
 
 pinche_pobre <- read_rds("discriminating-words/data/tweets/apariencia/pinche_pobre.RDS") %>% 
   mutate(tipo = "pinche_pobre")
@@ -128,9 +128,9 @@ guerito <- read_rds("discriminating-words/data/tweets/apariencia/guerito.RDS") %
   mutate(tipo = "guerito")
 
 base_apariencia <- rbind(naco, jodido, iztapalacra, chacha, pinche_fresa,
-                         pinche_negro, pinche_gordo, pinche_indio, pinche_pobre,
-                         guerito) %>% 
-  mutate(motivo = "ideoligia")
+                         pinche_negro, pinche_gordo, pinche_pobre,
+                         guerito, pinche_indio) %>% 
+  mutate(motivo = "apariencia")
 
 
 saveRDS(base_apariencia, "discriminating-words/data/tweets/base_apariencia.RDS")

@@ -1,0 +1,77 @@
+---
+title: "Clasificación de tweets"
+output: html_notebook
+---
+
+Se tiene una base con 459549 tweets de 1400 (aprox) ciudadanos de la cdmx.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, comment=FALSE}
+#Script lecutra y clasificación de tweets
+
+library(tidyverse)
+library(tidytext)
+library(igraph)
+library(ggraph)
+library(wordcloud)
+library(magrittr)
+library(tm)
+library(stringi)
+library(reshape2)
+library(topicmodels)
+library(widyr)
+library(stringr)
+library(forcats)
+library(plotly)
+library(arulesViz)
+library(arules)
+
+tweets_raw <- read_csv("../data/tweets_cuentascdmx.csv")
+data.frame(tweets = nrow(tweets_raw),tweets_id = tweets_raw$user_id %>%  unique() %>% length(), tweets_id_NAs = tweets_raw %>% filter(is.na(user_id)) %>%  nrow() )
+```
+
+- Palabras a buscar en los tweets
+
+```{r, echo=FALSE, warning=FALSE, comment=FALSE, message=FALSE}
+cat_pal <- read_csv("../docs/catalogo_palabras.csv")
+cat_pal
+```
+
+- Personas que con número de tweets con las palabras buscadas
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+tweets_tokens <- tweets_raw %>% 
+  select(user_id, User_screen_name, tweet_id, tweet_text) %>% 
+  mutate(tweet_text = tweet_text %>% 
+           stri_trans_general(id = "Latin-ASCII") %>% 
+           str_replace("@", "zzz"),
+         tweet_id = as.character(tweet_id)) %>% 
+  unnest_tokens(word, tweet_text) %>%
+  filter(!str_detect(word,"zzz")) %>% 
+  inner_join(cat_pal)
+
+tweets_personas <- tweets_tokens %>% 
+  group_by(user_id, User_screen_name) %>% 
+  summarise(n = n_distinct(tweet_id))
+
+tweets_personas
+```
+
+- Una vez leidos lo tweets y clasificados como discriminatorios o no 
+vemos cuántos son para seguir con la clasificación.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+persona_tweet <- tweets_tokens %>% 
+  select(user_id, User_screen_name, tweet_id) %>% 
+  unique()
+base_discriminacion_uno <- tweets_raw %>%
+  mutate(tweet_id = as.character(tweet_id)) %>% 
+  inner_join(persona_tweet)
+#write_csv(base_discriminacion_uno, "../data/tweets_discrimiacion_1")
+tweets_tokens$tweet_id %>% unique() %>% length()
+```
+
+```{r, warning=FALSE, message=FALSE}
+tweets_ge <- read_csv("../data/tweets_discrimiacion_1")
+tweets_ge$tipo %>% table()
+```
+
