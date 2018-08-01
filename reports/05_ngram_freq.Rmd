@@ -29,3 +29,10 @@ top_x_ngram <- function(x=20, n=2) {
 }
 ```
 
+```{r bi-gram}
+top_x_ngram(20, 2)
+```
+
+```{r tri-gram}
+top_x_ngram(20, 3)
+```
