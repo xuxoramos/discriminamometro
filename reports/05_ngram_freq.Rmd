@@ -1,0 +1,31 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r include=FALSE}
+library(tidyr)
+library(dplyr)
+library(tidytext)
+```
+
+```{r}
+files <- dir('../data/tweets/')[grep('RDS',dir('../data/tweets/'))]
+tweets <- lapply(files, function(x) readRDS(paste0('../data/tweets/', x))) %>% bind_rows()
+```
+
+```{r}
+top_x_ngram <- function(x=20, n=2) {
+  tweets %>% 
+    unnest_tokens(ngram, 
+                  text,
+                  token='ngrams',
+                  n=2) %>% 
+    group_by(ngram, motivo) %>% 
+    tally() %>% 
+    group_by(motivo) %>% 
+    top_n(20) %>% 
+    arrange(motivo,desc(n))
+}
+```
+
