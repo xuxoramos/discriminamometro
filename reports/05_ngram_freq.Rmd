@@ -15,8 +15,26 @@ tweets <- lapply(files, function(x) readRDS(paste0('../data/tweets/', x))) %>% b
 ```
 
 ```{r}
+custom_stop_words <- bind_rows(stop_words,
+                               data_frame(word = tm::stopwords("spanish"),
+                                          lexicon = "custom"),
+                               data_frame(word = c("https", 
+                                                   "rt",
+                                                   "te",
+                                                   "que",
+                                                   "si"),
+                                          lexicon = "manual"))
+```
+
+```{r}
 top_x_ngram <- function(x=20, n=2) {
   tweets %>% 
+    select(id, text, motivo) %>% 
+    unnest_tokens(word,text) %>% 
+    anti_join(custom_stop_words) %>% 
+    filter(!grepl('\\.', word)) %>% 
+    group_by(id, motivo) %>% 
+    summarise(text = stringr::str_c(word, collapse = ' ')) %>% 
     unnest_tokens(ngram, 
                   text,
                   token='ngrams',
