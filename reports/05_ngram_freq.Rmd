@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r include=FALSE}
+library(tidyr)
+library(dplyr)
+library(tidytext)
+```
+
+```{r}
+files <- dir('../data/tweets/')[grep('RDS',dir('../data/tweets/'))]
+tweets <- lapply(files, function(x) readRDS(paste0('../data/tweets/', x))) %>% bind_rows()
+```
+
+```{r}
+stopwords_espanol <- read_csv("../docs/stopwords_espanol.csv")
+custom_stop_words <- bind_rows(stopwords_espanol,
+                               stop_words,
+                               data_frame(word = tm::stopwords("spanish"),
+                                          lexicon = "custom"),
+                               data_frame(word = c("https", 
+                                                   "rt",
+                                                   "te",
+                                                   "que",
+                                                   "si"),
+                                          lexicon = "manual"))
+```
+
+```{r}
+top_x_ngram <- function(x=20, m=2) {
+  tweets %>% 
+    select(id, text, motivo) %>% 
+    unnest_tokens(word,text) %>% 
+    anti_join(custom_stop_words) %>% 
+    filter(!grepl('\\.', word)) %>% 
+    group_by(id, motivo) %>% 
+    summarise(text = stringr::str_c(word, collapse = ' ')) %>% 
+    unnest_tokens(ngram, 
+                  text,
+                  token='ngrams',
+                  n=m) %>% 
+    group_by(ngram, motivo) %>% 
+    tally() %>% 
+    group_by(motivo) %>% 
+    top_n(x) %>% 
+    arrange(motivo,desc(n))
+}
+```
+
+```{r bi-gram}
+top_x_ngram(1, 3)
+```
+
+```{r tri-gram}
+top_x_ngram(1, 2)
+```
