@@ -1,6 +1,8 @@
 ---
 title: "COPRED"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
