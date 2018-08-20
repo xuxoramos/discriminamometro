@@ -93,13 +93,13 @@ base_nar_motivo_2 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 bigram <- base_nar_motivo_2 %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres","feminazi")) %>%  
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres")) %>% 
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>% 
   group_by(tipo) %>% 
-  top_n(7) %>% 
+  top_n(7) %>%
   ungroup()
 
 bigramplot <- bigram %>%
@@ -115,7 +115,7 @@ ggsave('bigramgenero.png', bigramplot, device = 'png', path = '../copred_app/www
 
 ```{r, echo=FALSE, message=FALSE}
 base_nar_motivo_2 %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres", "feminazi")) %>% 
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>% 
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
@@ -148,13 +148,13 @@ base_nar_motivo_3 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 trigram <- base_nar_motivo_3 %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres","feminazi")) %>%  
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>%  
   bind_tf_idf(trigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
 
 trigram %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres")) %>% 
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
   ungroup() %>% 
@@ -888,6 +888,7 @@ base_nar_motivo_2 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% c("es_chavo", "nini", "pinche_viejo")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
@@ -1041,6 +1042,7 @@ base_nar_motivo_2 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% c("ciego", "cojo")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 

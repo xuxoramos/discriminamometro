@@ -12,18 +12,7 @@ COPRED tiene 7 categorías de discriminación identificadas en sus catálogos:
 
 Cada categoría engloba palabras y frases específicas con las que COPRED ha identificado actos discriminatorios en la CDMX. A continuación las palabras por categoría. La lista no pretende ser exhaustiva ni limitativa, y solo refleja un ejercicio que se realizó desde COPRED para identificar las palabras de acuerdo a la experiencia de sus funcionarios.
 
-| Apariencia | Discapacidad | Edad | Género | Ideología | Orientación | Religión  |
-|---|---|---|---|---|---|---|
-| chacha  |  ciego |  chavoruco | como hombre  | chairo  | arroz con popote  |  pinche judío |
-| güerito  | cojo  | es chavo  | como niña  | derechairo  | joto  | mocho  |
-| iztapalacra  |  discapacitado | nini  | mama luchona  | feminazi  | machorra  |  persinado |
-| jodido  |   | pareces niño chiquito  | es de niña  |   | marimacha  | testículos de jehová  |
-| naco  |   | pinche niño  |  vieja pendeja |   | lencha  | santurrón  |
-| pinche fresa  |   | pinche viejita/viejito  | feminazi  |   | puto  | mojigata  |
-| pinche gordo  |   |   |  vieja loca |   | puñal  | religioso pendejo  |
-| pinche indio  |   |   |  es de embarazada |   | maricon  | coge niños  |
-| pinche negro  |   |   | puta  |   |  muerdealmohadas |   |
-| pinche pobre  |   |   | vieja embarazada  |   |  sodomita |   |
+![Tabla motivos de discriminación COPRED](https://i.imgur.com/e5sdQaP.png)
 
 Se desea conocer los patrones de discriminación en la red social Twitter particulares de la CDMX. Preguntas relevantes para este propósito son:
 
@@ -31,17 +20,31 @@ Se desea conocer los patrones de discriminación en la red social Twitter partic
 + ¿Es posible detectar discriminación emergente en grupos sociales?
 + ¿Qué tipo de discriminación es más frecuente en el medio de interés?
 
-### Modelo de clasificación y si intuición
+### Modelo de clasificación y su intuición
 
 Se creará un modelo de clasificación de texto que "aprenda" los patrones de un universo de tuits recolectados. Estos patrones identificarán las palabras y textos específicos definidos por COPRED aunadas a métricas de relevancia de dichos textos dentro de todo el conjunto de mensajes para tratar de identificar el contexto correctamente.
 
 La intuición del algoritmo utilizado para identificar las palabras y su relevancia para formar contextos correctamente es el siguiente:
+
 1. Contar las ocurrencias de cada palabra dentro de cada uno de los mensajes.
-2. Obtener la proporción de estas ocurrencias entre todos los textos.
+2. Dividir esta frecuencia de ocurrencias entre el total de palabras en todos los documentos.
 3. Si una palabra de interés se encuentra en la mayoría de los mensajes, es de poca relevancia.
 4. Si una palabra de interés se encuentra en pocos mensajes, es de mayor relevancia.
+5. Si una palabra de interés se encuentra en MUY pocos mensajes, es de poca relevancia.
 
-Digamos, por ejemplo, que en un discurso político sobre seguridad predominan las palabras "policía", "vulnerabilidad", "protección" y "fuerza". Si en algún momento se menciona "narcotráfico", es palabra de interés, pero no domina en la conversación, éste término tendrá mayor relevancia. El concepto clave es la varianza de información: "si todos preferimos agua de jamaica, entonces nadie prefiere agua de jamaica".
+Ejemplo:
+
+1. Digamos que en un discurso político sobre seguridad pública predominan las palabras "policía", "vulnerabilidad", "protección" y "fuerza".
+2. Nosotros determinamos, desde antes, que la palabra "narcotráfico", es palabra de interés.
+3. Si domina en la conversación, significa que todo el discurso fue de narcotráfico, por lo cual no es relevante porque no aporta información.
+4. Si solo se menciona una vez, igual no es relevante, porque no aporta información.
+5. Si se menciona una cantidad media de veces, entonces si será de relevancia porque podemos deducir que hubo una parte del discurso dedicado al tema.
+
+Esta métrica de relevancia de ocurrencia de palabras entre palabras totales lo establece el algoritmo automáticamente, tomando como base la longitud de los mensajes, y su cantidad.
+
+La idea clave sobre la aportación de información es la variabilidad. Si tenemos un texto con 10,000 palabras, y todas las palabras son iguales, entonces no hay información discernible. Si todas las palabras son diferentes, tampoco habrá información ni patrón que podamos seguir. Si por el contrario, hay cierta cantidad de información, entonces podemos tratar de identificar el patrón y seguirlo.
+
+![Intuición del algoritmo](https://i.imgur.com/SohEw9A.png?1)
 
 ## Datos
 Utilizando la API gratuita de Twitter, se recolectaron tweets acotados a la CDMX durante 45 días, buscando las palabras o frases específicas mostradas arriba que COPRED detectó en su ejercicio empírico.
