@@ -7,7 +7,7 @@ library(stringr)
 library(stopwords)
 library(tidytext)
 library(tm)
-library(e1071)
+library(randomForest)
 
 
 server <- function(input, output) {
