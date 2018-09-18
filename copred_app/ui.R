@@ -41,7 +41,7 @@ ui <- fluidPage(
           actionButton("submit", "Enter"),
           box(
             title = "Motivo de discriminación", width = NULL,
-            textOutput("table")
+            h1(textOutput("table"))
             ),
           box(title='¿Cómo leer este contenido?', HTML('En este apartado se muestra el resultado del análisis por cada tipo de discriminación.<br/>Se puede observar que la religión no figura entre las categorías con más incidentes en redes sociales. Sin embargo, de acuerdo a datos de COPRED, el motivo religioso es el que más se reporta <i>in situ</i>.<br/>En cada uno de los paneles a continuación, se muestra una nube de palabras a la izquierda, la cual cuenta la frecuencia de los términos buscados en todo el contenido, y a la derecha una asociación entre una palabra de interés para COPRED, y las frases que lo acompañan. La métrica en el eje de las X representa la relevancia dentro de las conversaciones de la intersección entre palabra discriminatoria identificada VS frase que co-ocurre junto con ella.'), width = 12),
           fluidRow(
