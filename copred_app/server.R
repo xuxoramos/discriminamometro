@@ -9,6 +9,7 @@ library(tidytext)
 library(tm)
 library(e1071)
 
+
 server <- function(input, output) {
 
   pre <- eventReactive(input$submit, {
@@ -25,7 +26,7 @@ server <- function(input, output) {
                stri_trans_general(id = "Latin-ASCII")) %>% 
       unnest_tokens(word, tweet_text) %>% 
       right_join(palabras) %>% 
-      unique() %>% 
+      # unique() %>% 
       mutate(unos = 1) %>% 
       spread(word,unos, fill = 0) %>% 
       inner_join(oras)
