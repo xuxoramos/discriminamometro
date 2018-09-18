@@ -14,6 +14,7 @@ library(rpart)
 #library(rpart.plot)
 library(randomForest)
 library(wordcloud)
+library(naivebayes)
 
 base_discr_comp <-  rbind(read_rds("discriminating-words/data/tweets/base_apariencia.RDS"),
                    read_rds("discriminating-words/data/tweets/base_discapacidad.RDS"),
@@ -129,10 +130,10 @@ test <- df[-train_ind, ]
 df.train <- train
 df.test <- test
 
-trainNB <- df.train[,3:115]
-testNB <- df.test[,3:115]
+trainNB <- df.train[,3:114]
+testNB <- df.test[,3:114]
 
-system.time( classifier <- naiveBayes(trainNB, df.train$class, laplace = 0) )
+system.time( classifier <- randomForest(x=trainNB, y=df.train$class))
 
 system.time( pred <- predict(classifier, newdata=testNB) )
 
@@ -143,31 +144,32 @@ conf.mat
 
 #clasificador con la base de datos completa
 
-classifier_com <- naiveBayes(df[,3:115], df$class, laplace = 0) 
+classifier_com <- randomForest(df[,3:114], df$class) 
 
 #tweet discriminador 
 
-ora <- "pinche puto puto puto"
+ora <- "mamá luchona"
 oras <- ora %>% data.frame()
 
 names(oras) <- c("text")
 
-tew <- oras %>% 
+tew <- oras %>%
   mutate(tweet_text = gsub("@\\w+ *", "", text),
          tweet_text = tweet_text %>% 
            stri_trans_general(id = "Latin-ASCII")) %>% 
-  unnest_tokens(word, tweet_text) %>%
-  inner_join(palabras) %>% 
-  unique() %>% 
+  unnest_tokens(word, tweet_text) %>% 
+  right_join(palabras) %>% 
   mutate(unos = 1) %>% 
-  spread(word,unos, fill = 0)
+  spread(word,unos, fill = 0) %>% 
+  inner_join(oras)
 
-pred <- predict(classifier_com, newdata=tew[,-1])
+pred <- predict(clasif, newdata=tew[,-1])
 pred
 
 #guardando el clasificador
 
-saveRDS(object = classifier_com, "discriminating-words/copred_app/base_clasif.rds")
+write_rds(classifier_com, "discriminating-words/copred_app/base_clasif.rds")
+write_csv(data.frame(word=trainNB %>% names), "discriminating-words/copred_app/catalogo_variables.csv")
 
 # nubes de palabras -------------------------------------------------------
 

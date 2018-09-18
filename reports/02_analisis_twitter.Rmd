@@ -21,6 +21,12 @@ library(arulesViz)
 library(arules)
 library(ggraph)
 library(igraph)
+
+savePlot <- function(myPlot) {
+        png("myPlot.png")
+        print(myPlot)
+        dev.off()
+}
 ```
 
 ## Introducción {.tabset .tabset-fade .tabset-pills}
@@ -87,36 +93,29 @@ base_nar_motivo_2 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 bigram <- base_nar_motivo_2 %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres","feminazi")) %>%  
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres")) %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>% 
   group_by(tipo) %>% 
-  top_n(7) %>% 
-  ungroup() %>% 
+  top_n(7) %>%
+  ungroup()
+
+bigramplot <- bigram %>%
   ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 1, scales = "free") +
+  facet_wrap(.~tipo, nrow = 1, scales = "free_y") +
   coord_flip()
 
-bigram %>% 
-  filter(tipo == "feminazi") %>%  
-  group_by(tipo) %>% 
-  top_n(1) %>% 
-  ungroup() %>% 
-  ggplot(aes(bigram, tf_idf, fill = tipo)) +
-  geom_col(show.legend = FALSE) +
-  labs(x = NULL, y = "tf-idf") +
-  coord_flip()
+ggsave('bigramgenero.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
+
 ```
 
 ```{r, echo=FALSE, message=FALSE}
 base_nar_motivo_2 %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres", "feminazi")) %>% 
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>% 
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
@@ -149,13 +148,13 @@ base_nar_motivo_3 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 trigram <- base_nar_motivo_3 %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres","feminazi")) %>%  
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>%  
   bind_tf_idf(trigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
   mutate(trigram = factor(trigram, levels = rev(unique(trigram)))) 
 
 trigram %>% 
-  filter(tipo %in% c("como_nina", "como_hombre", "discriminacion_mujeres")) %>% 
+  filter(tipo %in% c("como_nina", "es_de_nina", "como_hombre")) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
   ungroup() %>% 
@@ -265,19 +264,20 @@ bigram <- base_nar_motivo_2 %>%
            c("pinche_puto", "lesbiana", "joto", "punial")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
   filter(tipo %in% 
            c("pinche_puto", "arroz_popote", "lesbiana", "joto", "punial")) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
-  ungroup() %>% 
-  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  ungroup()
+
+bigramplot <- bigram %>% ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  facet_wrap(.~tipo, scales='free_y', nrow=1, ncol=4) +
   coord_flip()
+
+ggsave('bigramorientacion.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -431,17 +431,18 @@ base_nar_motivo_2 <- base_reportes %>%
 bigram <- base_nar_motivo_2 %>% 
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
-  ungroup() %>% 
-  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  ungroup()
+
+bigramplot <- bigram %>% ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  facet_wrap(~tipo, scales = "free_y", nrow=1) +
   coord_flip()
+
+ggsave('bigramideologia.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
 ```
 
 ```{r, echo=FALSE, message=FALSE}
@@ -582,17 +583,20 @@ bigram <- base_nar_motivo_2 %>%
   filter(tipo %in% c("naco", "pinche_gordo", "jodido", "pinche_pobre", "chacha")) %>% 
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
-  ungroup() %>% 
+  ungroup()
+
+bigramplot <- bigram %>%
   ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  facet_wrap(~tipo, nrow=1, scales = "free_y") +
   coord_flip()
+
+ggsave('bigramapariencia.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
+
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -733,17 +737,20 @@ base_nar_motivo_2 <- base_reportes %>%
 bigram <- base_nar_motivo_2 %>% 
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
-  ungroup() %>% 
-  ggplot(aes(bigram, tf_idf, fill = tipo)) +
+  ungroup() 
+
+bigramplot <- bigram %>%
+    ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  facet_wrap(~tipo, nrow = 1, scales = "free_y") +
   coord_flip()
+
+ggsave('bigramreligion.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
+
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -881,19 +888,23 @@ base_nar_motivo_2 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% c("es_chavo", "nini", "pinche_viejo")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
-  ungroup() %>% 
+  ungroup()
+
+bigramplot <- bigram %>%
   ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  facet_wrap(~tipo, nrow = 1, scales = "free_y") +
   coord_flip()
+
+ggsave('bigramedad.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
+
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -1031,19 +1042,23 @@ base_nar_motivo_2 <- base_reportes %>%
 
 ```{r, echo=FALSE, message=FALSE}
 bigram <- base_nar_motivo_2 %>% 
+  filter(tipo %in% c("ciego", "cojo")) %>%  
   bind_tf_idf(bigram, tipo, n) %>% 
   arrange(desc(tf_idf)) %>% 
-  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) 
-
-bigram %>% 
+  mutate(bigram = factor(bigram, levels = rev(unique(bigram)))) %>% 
   group_by(tipo) %>% 
   top_n(4) %>% 
-  ungroup() %>% 
+  ungroup()
+
+bigramplot <- bigram %>%
   ggplot(aes(bigram, tf_idf, fill = tipo)) +
   geom_col(show.legend = FALSE) +
   labs(x = NULL, y = "tf-idf") +
-  facet_wrap(~tipo, ncol = 2, scales = "free") +
+  facet_wrap(~tipo, nrow = 1, scales = "free_y") +
   coord_flip()
+
+ggsave('bigramdiscapacidad.png', bigramplot, device = 'png', path = '../copred_app/www/', height = 4, width = 12)
+
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}

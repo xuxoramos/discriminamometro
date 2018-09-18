@@ -9,6 +9,7 @@ library(tidytext)
 library(tm)
 library(e1071)
 
+
 server <- function(input, output) {
 
   pre <- eventReactive(input$submit, {
@@ -19,19 +20,21 @@ server <- function(input, output) {
     
     names(oras) <- c("text")
     
-    tew <- oras %>% 
+    tew <- oras %>%
       mutate(tweet_text = gsub("@\\w+ *", "", text),
              tweet_text = tweet_text %>% 
                stri_trans_general(id = "Latin-ASCII")) %>% 
-      unnest_tokens(word, tweet_text) %>%
-      inner_join(palabras) %>%
-      unique() %>%
+      unnest_tokens(word, tweet_text) %>% 
+      right_join(palabras) %>% 
+      # unique() %>% 
       mutate(unos = 1) %>% 
-      spread(word,unos, fill = 0)
+      spread(word,unos, fill = 0) %>% 
+      inner_join(oras)
     if(nrow(tew)==0){
       return("No se encontró motivo")
     }else{
-      return(predict(clasif, newdata=tew[,-1]) %>% as.character()) 
+      return(predict(clasif, newdata=tew[,-1]) %>% as.character())
+      # return(oras)
     }
 
   })
