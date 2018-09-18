@@ -147,27 +147,28 @@ classifier_com <- naiveBayes(df[,3:115], df$class, laplace = 0)
 
 #tweet discriminador 
 
-ora <- "pinche puto puto puto"
+ora <- "mamá luchona"
 oras <- ora %>% data.frame()
 
 names(oras) <- c("text")
 
-tew <- oras %>% 
+tew <- oras %>%
   mutate(tweet_text = gsub("@\\w+ *", "", text),
          tweet_text = tweet_text %>% 
            stri_trans_general(id = "Latin-ASCII")) %>% 
-  unnest_tokens(word, tweet_text) %>%
-  inner_join(palabras) %>% 
+  unnest_tokens(word, tweet_text) %>% 
+  right_join(palabras) %>% 
   unique() %>% 
   mutate(unos = 1) %>% 
-  spread(word,unos, fill = 0)
+  spread(word,unos, fill = 0) %>% 
+  inner_join(oras)
 
 pred <- predict(classifier_com, newdata=tew[,-1])
 pred
 
 #guardando el clasificador
 
-saveRDS(object = classifier_com, "discriminating-words/copred_app/base_clasif.rds")
+write_rds(classifier_com, "discriminating-words/copred_app/base_clasif.rds")
 
 # nubes de palabras -------------------------------------------------------
 
