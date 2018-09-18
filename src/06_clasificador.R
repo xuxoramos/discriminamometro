@@ -133,10 +133,7 @@ df.test <- test
 trainNB <- df.train[,3:114]
 testNB <- df.test[,3:114]
 
-# system.time( classifier <- naiveBayes(trainNB, df.train$class, laplace = 0) )
-system.time( classifier <- randomForest(
-  x=trainNB, y=df.train$class))
-  # prior = rep(1/length(levels(df.train$class)), length(levels(df.train$class)))) )
+system.time( classifier <- randomForest(x=trainNB, y=df.train$class))
 
 system.time( pred <- predict(classifier, newdata=testNB) )
 
@@ -162,7 +159,6 @@ tew <- oras %>%
            stri_trans_general(id = "Latin-ASCII")) %>% 
   unnest_tokens(word, tweet_text) %>% 
   right_join(palabras) %>% 
-  # unique() %>% 
   mutate(unos = 1) %>% 
   spread(word,unos, fill = 0) %>% 
   inner_join(oras)
