@@ -53,7 +53,7 @@ El API gratuito de Twitter tiene limitantes en cuanto al número de mensajes que
 
 En total, se cuenta con una base de 12,000 tuits de la CDMX entre los meses de Abril, Mayo y Junio.
 
-Este repositorio contiene todos los datos recolectados en `discriminating-words/data/tweets/` y `discriminating-words/data2/tweets/`.
+Este repositorio contiene todos los datos recolectados en [`discriminating-words/data/tweets/`](https://github.com/datankai/discriminating-words/tree/master/data/tweets) y [`discriminating-words/data2/tweets/`](https://github.com/datankai/discriminating-words/tree/master/data2/tweets).
 
 Aunque se han eliminado retuits y replies, algunas plataformas de consulta de Twitter más antiguas no distinguen entre la nueva y la vieja estructura de tuits, y un RT dado con una plataforma nueva puede no ser identificado por una vieja.
 
