@@ -89,12 +89,14 @@ Los elementos del tablero son:
 ### Vista sugerida
 https://www.clicdata.com/wp-content/uploads/2019/06/example-dashboard-014-1.png
 
+### Mejoras sugeridas VS debilidades actuales
+1. Ampliar la BD de tuits a todo el territorio nacional - esto implicará desarrollar un *descargador de tuits*.
+2. Agregar a la BD de mensajes lo obtenido por Crowd Tangle de FB - otorgado por SocialTIC
+3. Desarrollar un modelo probabilístico basado en Latent Dirichlet Allocation para detección de tópicos y temas discriminatorios
+4. Una vez obtenidos los temas, desarrollar un modelo supervisado de clasificación
+5. Desarrollo de un pipeline de adquisición y refresh de datos muestra para el semáforo
 
-Dadas estas debilidades, proponemos las siguientes mejoras:
-1. Ampliar la BD de tuits a todo el territorio nacional
-
-
-### Organización
+### Organización sugerida
 1. Líder de Proyecto: Jesús Ramos
 2. Científico de Datos: Paco Paz
 3. Ingeniero de Datos: Marco Monroy
