@@ -96,6 +96,15 @@ https://www.clicdata.com/wp-content/uploads/2019/06/example-dashboard-014-1.png
 4. Una vez obtenidos los temas, desarrollar un modelo supervisado de clasificación
 5. Desarrollo de un pipeline de adquisición y refresh de datos muestra para el semáforo
 
+## Fases y Calendario tentativo
+1. Kickoff & Inducción - 9 de Junio
+2. Desarrollo de tuit downloader y Crowd Tangle downloader-  10 Junio - 17 de Junio
+3. EDA de tuits y desarrollo de diccionario - 17 de Junio - 27 de Junio
+4. Modelo LDA - 27 de Junio - 10 de Julio
+5. Sanity check - 10 Julio - 17 Julio
+5. Desarrollo de discriminamómetro - 17 Julio - 31 de Julio
+5. Desarrollo de producto de datos / editorial - 1 Agosto - 14 de Agosto
+
 ### Organización sugerida
 1. Líder de Proyecto: Jesús Ramos
 2. Científico de Datos: Paco Paz
