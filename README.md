@@ -64,3 +64,40 @@ Aunque se han eliminado retuits y replies, algunas plataformas de consulta de Tw
 2. También es importante considerar las coyunturas, y el momento en el que recogimos los tuits fue en medio del mundial de fútbol. Las coyunturas agregan ruido focalizado a las conversaciones. El efecto es que surge argot y jerga que puede ser relevante, solo en el contexto de la coyuntura, tal que, por ejemplo, la palabra "puto", dirigido a algún equipo, puede no ser detectado por este modelo.
 
 3. Finalmente, es importante declarar que los datos recabados son generados desde procesos humanos de comunicación, y como todo proceso humano, es falible, y esta falibilidad se reflejará en sesgos. La manera de suavizar el ruido que introducen los sesgos es recabando mayor número de observaciones y de más tipos, tal que las variaciones que existan en algunas, sean canceladas por las variaciones en otras.
+
+### DEBILIDADES DEL PRODUCTO
+1. Tiene datos muy viejos
+2. Tiene datos solo de TW
+3. Tiene datos taggeados de CDMX
+4. Solo busca palabras, cuando debe buscar frases y con contexto
+
+Dadas las debilidades arriba mencionadas, SocialTIC y la Sociedad Mexicana de Ciencia de Datos ha decidido iterar una 2a vez sobre este proyecto, con las siguiente especificación.
+
+# DISCRIMINAMÓMETRO
+
+## Siguientes Pasos - Summer of Data
+El *Summer of Data* propone que este proyecto evolucione a su 2a iteración.
+
+Lo que se propone es un **"discriminamómetro"**, un producto de datos que esté tomando diariamente una muestra de tuits y tome *la temperatura del uso de lenguaje discriminatorio*, concentrándose en eventos o coyunturas que traigan al spotlight este lenguaje (i.e. #blacklivesmatter, #mexicoracista, etc).
+
+Los elementos del tablero son:
+1. Discriminamómetro (semáforo con 3 niveles: rojo - evento o coyuntura de discriminación presente o en las últimas 48h, amarillo - discriminación elevada, verde: discriminación a niveles normales (acoso por afición deportiva, etc). Ojo que los semáforos no son inmediatos, sino sensan *acumulación* del fenómeno.
+2. Top 5 motivos de discriminación en el TW actual de MX de acuerdo al diccionario de CONAPRED
+3. De esos motivos de discriminación, hacer el desglose del hashtag asociado y las top 5 words o phrases asociadas al fenómeno discriminatorio actual.
+4. Ventana para capturar un tuit (280 chars) y correrle el modelo de clasificación para ubicarlo en la categoría de discriminación.
+
+### Vista sugerida
+https://www.clicdata.com/wp-content/uploads/2019/06/example-dashboard-014-1.png
+
+
+Dadas estas debilidades, proponemos las siguientes mejoras:
+1. Ampliar la BD de tuits a todo el territorio nacional
+
+
+### Organización
+1. Líder de Proyecto: Jesús Ramos
+2. Científico de Datos: Paco Paz
+3. Ingeniero de Datos: Marco Monroy
+4. Desarrollo de infraestructura y scripts para almacenamiento de tuits desde TW, sin firehose, por el momento.
+5. Desarrollo de pipeline de adquisición desde Crowd Tangle de FB (revisar si hay API)
+6. CRÍTICO: saber, entender, y manipular efectivamente el algoritmo de Latent Dirichlet Allocation.
