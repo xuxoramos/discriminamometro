@@ -107,8 +107,8 @@ https://www.clicdata.com/wp-content/uploads/2019/06/example-dashboard-014-1.png
 
 ### Organización sugerida
 1. Líder de Proyecto: Jesús Ramos
-2. Científico de Datos: Francisco Paz
-3. Ingeniero de Datos: Marco Monroy
+2. Científico de Datos: Paco Paz
+3. Ingeniero de Datos: Marco Julio Monroy Ayala.
 4. Desarrollo de infraestructura y scripts para almacenamiento de tuits desde TW, sin firehose, por el momento.
 5. Desarrollo de pipeline de adquisición desde Crowd Tangle de FB (revisar si hay API)
 6. CRÍTICO: saber, entender, y manipular efectivamente el algoritmo de Latent Dirichlet Allocation.
