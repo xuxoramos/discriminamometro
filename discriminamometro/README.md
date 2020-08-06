@@ -12,3 +12,5 @@ conda activate discriminamometro
 ```
 
 Además en el archivo **requirements.txt** se enlistan todos los paquetes y versiones. Estos fueron utilizados bajo la versión de **python 3.7.6**
+=======
+#### Iteración dos del proyecto discriminamometro.
