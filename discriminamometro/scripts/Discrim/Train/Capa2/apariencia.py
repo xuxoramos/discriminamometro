@@ -58,7 +58,7 @@ class Apariencia():
         self.npNombreModelos = np.append(self.npNombreModelos, 'XGBOOST')
         
         self.nbv_cross_validation = 5
-        self.str_metric = 'roc_auc'
+        self.str_metric = 'f1'
         
         return
 
