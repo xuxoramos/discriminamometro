@@ -7,6 +7,7 @@ import nltk
 import pickle as pickle
 from sklearn.model_selection import train_test_split
 import numpy as np
+import dask.dataframe as dd
 
 class Genero():
     
@@ -14,7 +15,7 @@ class Genero():
         
         self.obj_utileria = ut.Utileria()
         self.str_ruta_entrenamiento = '00_entrenamiento/tweets_modelo_capa2'
-        self.str_fuente_clasificacion = 'tweets_entrenamiento_genero_light.csv'
+        self.str_fuente_clasificacion = 'tweets_entrenamiento_genero_balance.csv'
         self.str_LocalFile = 'data/tweets/' + self.str_fuente_clasificacion
         self.str_nombrePickle = 'modelo_capa2_genero.p'
         self.str_ruta_s3_modelos = '01_modelos/capa2/genero'
@@ -90,18 +91,24 @@ class Genero():
         
         return
     
-    def train(self):
+    def train(self, X_train):
         
         self.train, self.test = train_test_split(self.pd_fuente, test_size=0.2,random_state = 202008)
         
         self.cargar_modelo_embeddings()
-        npEmbeddings = self.generar_embeddings(self.train)
+
+        self.train['embeddings'] = 0
+        ddf = dd.from_pandas(self.train, npartitions=16)
+        self.train = ddf.map_partitions(self.generar_embeddings, meta=ddf).compute()
+
+        # npEmbeddings = self.generar_embeddings(self.train)
         
         obj_mgl = mgl.MagicLoop()
         
         # obj_mgl.train(npEmbeddings, self.train.label, )
         
-        X_train = pd.DataFrame(npEmbeddings)
+        # X_train = pd.DataFrame(npEmbeddings)
+        X_train = pd.DataFrame(self.train.embeddings.tolist(), index= self.train.index)
         Y_train = pd.DataFrame(self.train.label)
         arrModelos = obj_mgl.prep_modelos(self.npNombreModelos)
 
@@ -131,7 +138,8 @@ class Genero():
                 npAux = np.empty([1, 300])
                 npEmbeddings = np.append(npEmbeddings, npAux, axis = 0)
         
-        return npEmbeddings 
+        fuente['embeddings'] = list(npEmbeddings)
+        return fuente 
     
     def crear_pickle(self):
     

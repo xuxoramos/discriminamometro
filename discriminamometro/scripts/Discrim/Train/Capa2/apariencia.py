@@ -7,6 +7,7 @@ import nltk
 import pickle as pickle
 from sklearn.model_selection import train_test_split
 import numpy as np
+import dask.dataframe as dd
 
 class Apariencia():
     
@@ -14,10 +15,10 @@ class Apariencia():
         
         self.obj_utileria = ut.Utileria()
         self.str_ruta_entrenamiento = '00_entrenamiento/tweets_modelo_capa2'
-        self.str_fuente_clasificacion = 'tweets_entrenamiento_apariencia.csv'
+        self.str_fuente_clasificacion = 'tweets_entrenamiento_genero_balance_ligth.csv'
         self.str_LocalFile = 'data/tweets/' + self.str_fuente_clasificacion
-        self.str_nombrePickle = 'modelo_capa2_apariencia.p'
-        self.str_ruta_s3_modelos = '01_modelos/capa2/apariencia'
+        self.str_nombrePickle = 'modelo_capa2_genero.p'
+        self.str_ruta_s3_modelos = '01_modelos/capa2/genero'
         self.str_modelo_pickle_s3 = self.str_ruta_s3_modelos+'/'+self.str_nombrePickle
         
         ############################### Parametrización de modelos para el magic loop ##########################
@@ -42,12 +43,12 @@ class Apariencia():
         self.npDictHiperParam = np.append(self.npDictHiperParam, dictHyperParams)
 
         # Parametrización para XGBoost
-        dictHyperParams = {'learning_rate': [0.1,0.25, 0.75],
-                           'n_estimators': [50,100,150],  # Se redujo a 50
+        dictHyperParams = {'learning_rate': [0.1,0.75], #0.25
+                           'n_estimators': [100],  # Se redujo a 50
                            'min_samples_split': [4,16],
-                           'min_samples_leaf': [3,7],
-                           'max_depth': [3,4,5,6,7,10,15],
-                           'max_features': ['sqrt','log2']
+                           'min_samples_leaf': [3],
+                   'max_depth': [3,6,7],
+                           'max_features': ['sqrt'] #listo amigo
                            }
         self.npDictHiperParam = np.append(self.npDictHiperParam, dictHyperParams)
 
@@ -95,20 +96,26 @@ class Apariencia():
         self.train, self.test = train_test_split(self.pd_fuente, test_size=0.2,random_state = 202008)
         
         self.cargar_modelo_embeddings()
-        npEmbeddings = self.generar_embeddings(self.train)
+
+        self.train['embeddings'] = 0
+        ddf = dd.from_pandas(self.train, npartitions=16)
+        self.train = ddf.map_partitions(self.generar_embeddings, meta=ddf).compute()
+
+        # npEmbeddings = self.generar_embeddings(self.train)
         
         obj_mgl = mgl.MagicLoop()
         
         # obj_mgl.train(npEmbeddings, self.train.label, )
         
-        X_train = pd.DataFrame(npEmbeddings)
+        # X_train = pd.DataFrame(npEmbeddings)
+        self.X_train = pd.DataFrame(self.train.embeddings.tolist(), index= self.train.index)
         Y_train = pd.DataFrame(self.train.label)
         arrModelos = obj_mgl.prep_modelos(self.npNombreModelos)
 
         # #Se corre el magic loop para realizar las predicciones con los parámetros previamente establecidos
         self.best_model, npGridSearchCv = obj_mgl.correr_magic_loop(arrModelos,
                                             self.npDictHiperParam,
-                                            X_train,
+                                            self.X_train,
                                             Y_train,
                                             self.nbv_cross_validation,
                                             self.str_metric)    
@@ -131,7 +138,8 @@ class Apariencia():
                 npAux = np.empty([1, 300])
                 npEmbeddings = np.append(npEmbeddings, npAux, axis = 0)
         
-        return npEmbeddings 
+        fuente['embeddings'] = list(npEmbeddings)
+        return fuente 
     
     def crear_pickle(self):
     
