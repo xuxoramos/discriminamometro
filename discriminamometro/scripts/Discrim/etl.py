@@ -78,7 +78,7 @@ class Etl():
         
         list_Formateada = []
         for tweet in list_TweetsSinFiltro:
-            tweet_json = self.crear_registro_json(tweet)
+            tweet_json = self.obj_utileria.crear_registro_json(tweet)
             list_Formateada.append(tweet_json)
         list_TweetsSinFiltro = list_Formateada
                 

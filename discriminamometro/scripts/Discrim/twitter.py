@@ -36,4 +36,12 @@ class Twitter():
 
         return list_Tweets
     
+    def obtener_tweets_usuario(self, par_usuario, nbr_TweetsDescarga):
+        
+        list_Tweets = []
 
+        for tweet in tweepy.Cursor(self.api.user_timeline, screen_name=par_usuario, tweet_mode="extended").items(nbr_TweetsDescarga):
+
+            list_Tweets.append(tweet)
+            
+        return list_Tweets

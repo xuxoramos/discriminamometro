@@ -21,7 +21,7 @@ class API():
         
         self.nbr_tweets_x_hrs = 1
         self.nbr_tweets_x_ht = 3
-        self.nbr_tweets_x_usr = 1
+        self.nbr_tweets_x_usr = 2
         
         return
     
@@ -40,46 +40,26 @@ class API():
         for tweet in list_Tweets:
             tweet_json = self.obj_utileria.crear_registro_json(tweet)
             list_Formateada.append(tweet_json)
-
-        # Almacenamos el dataframe en la clase para poder consultarlo desde afuera (para pruebas)
-        self.list_Formateada = list_Formateada
         
-        # Se crea el dataframe
-        df = pd.DataFrame(list_Formateada)
+        self.proceso_prediccion(list_Formateada)
         
-        # Se prepara para la predicción
-        df = self.obj_utileria.formatear_dataframe(df)
-        
-        # Almacenamos el dataframe en la clase para poder consultarlo desde afuera (para pruebas)
-        self.df = df
-        
-        # Convertimos la columna a lista
-        X_predict = df.embeddings.tolist()
-        
-        # Almacenamos el dataframe en la clase para poder consultarlo desde afuera (para pruebas)
-        self.X_predict = X_predict
-        
-        # Llamamos al método que va a clasificar el arreglo con todos los modelos
-        rslt = self.clasificar_arr(X_predict)
-        
-        return rslt
+        return self.rslt
     
     def clasificar_x_usuario(self, str_usuario):
+        
+        str_Query = str_usuario
+        
+        list_Tweets = []
+        list_Tweets = self.obj_twitter.obtener_tweets_usuario(str_Query, self.nbr_tweets_x_usr)
+        
+        list_Formateada = []
+        for tweet in list_Tweets:
+            tweet_json = self.obj_utileria.crear_registro_json(tweet)
+            list_Formateada.append(tweet_json)
 
-        # Se prepara para la predicción
-        df = self.obj_utileria.formatear_dataframe(df)
+        self.proceso_prediccion(list_Formateada)
         
-        # Convertimos la columna a lista
-        X_predict = df.embeddings.tolist()
-        
-        # Llamamos al método que va a clasificar el arreglo con todos los modelos
-        rslt = self.clasificar_arr(X_predict)
-        
-        # Almacenamos el dataframe en la clase para poder consultarlo desde afuera (para pruebas)
-        self.df = df
-        self.X_predict = X_predict
-        
-        return rslt
+        return self.rslt
     
     def clasificar_x_texto(self, str_Texto):
         
@@ -91,12 +71,14 @@ class API():
         return self.rslt
     
     def proceso_prediccion(self, list_data):
-                
+        
+        self.list_data = list_data
+        
         # Se crea el dataframe tomando una lista como parámetro
-        df = pd.DataFrame(list_data)
+        self.df = pd.DataFrame(self.list_data)
 
         # Se prepara para la predicción
-        self.df = self.obj_utileria.formatear_dataframe(df)
+        self.df = self.obj_utileria.formatear_dataframe(self.df)
         
         # Convertimos la columna embeddings a lista
         self.X_predict = self.df.embeddings.tolist()
@@ -109,13 +91,13 @@ class API():
     def clasificar_arr(self, X_predict):
         
         dict_scores = {'discriminacion':0
-              ,'apariencia':1
-              ,'discapacidad':2
-              ,'edad':3
-              ,'genero':4
-              ,'ideologia':5
-              ,'orientacion':6
-              ,'religion':7}
+              ,'apariencia':0
+              ,'discapacidad':0
+              ,'edad':0
+              ,'genero':0
+              ,'ideologia':0
+              ,'orientacion':0
+              ,'religion':0}
         
         # Barremos el diccionario para utilizar todos los modelos sobre cada registro
         for k,it in dict_scores.items():
