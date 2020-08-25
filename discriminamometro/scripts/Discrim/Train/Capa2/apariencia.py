@@ -14,7 +14,7 @@ class Apariencia():
         
         self.obj_utileria = ut.Utileria()
         self.str_ruta_entrenamiento = '00_entrenamiento/tweets_modelo_capa2'
-        self.str_fuente_clasificacion = 'tweets_entrenamiento_apariencia.csv'
+        self.str_fuente_clasificacion = 'tweets_entrenamiento_genero_light.csv'
         self.str_LocalFile = 'data/tweets/' + self.str_fuente_clasificacion
         self.str_nombrePickle = 'modelo_capa2_apariencia.p'
         self.str_ruta_s3_modelos = '01_modelos/capa2/apariencia'
@@ -83,7 +83,7 @@ class Apariencia():
         self.pd_fuente = pd.read_csv(self.str_LocalFile, lineterminator='\n') 
         
         self.obj_utileria.cargar_stop_words()
-        nltk.download('punkt')
+        self.obj_utileria.descargar_punkt()
                 
         self.pd_fuente = self.obj_utileria.formatear_dataframe(self.pd_fuente)
         
@@ -131,7 +131,8 @@ class Apariencia():
                 npAux = np.empty([1, 300])
                 npEmbeddings = np.append(npEmbeddings, npAux, axis = 0)
         
-        return npEmbeddings 
+        fuente['embeddings'] = list(npEmbeddings)
+        return fuente 
     
     def crear_pickle(self):
     

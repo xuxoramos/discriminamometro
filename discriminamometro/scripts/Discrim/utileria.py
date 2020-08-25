@@ -4,7 +4,11 @@ import os
 import pickle as pickle
 import dask.dataframe as dd
 import re
-
+import nltk
+import numpy as np
+import spacy
+import json
+from unidecode import unidecode
 
 class Utileria:
 
@@ -51,6 +55,32 @@ class Utileria:
         print('Envío completado')
 
         return
+    
+    # Método para generar el registro Json por cada tweet
+    def crear_registro_json(self, tweet):
+
+        json = {}
+
+        # Se usa un try para obtener el valor si es que proviene de un retweet
+        try:
+            json =  {
+            'user_id': unidecode(tweet.user.id_str),
+            'name': unidecode(tweet.user.name),
+            'screen_name': unidecode(tweet.user.screen_name),
+            'full_text': unidecode(tweet.retweeted_status.full_text),
+            'location': unidecode(tweet.user.location)
+        }
+        except:
+        # Si falla el try, significa que no es un retweet (es un tweet normal)
+            json =  {
+            'user_id': unidecode(tweet.user.id_str),
+            'name': unidecode(tweet.user.name),
+            'screen_name': unidecode(tweet.user.screen_name),
+            'full_text': unidecode(tweet.full_text),
+            'location': unidecode(tweet.user.location)
+        }
+
+        return json
 
     def abrir_json_como_dataframe(self,str_Path):
         """
@@ -126,10 +156,50 @@ class Utileria:
         
     def formatear_dataframe(self, dataset):
         
+        # Limpieza
         ddf = dd.from_pandas(dataset, npartitions=self.nbr_cpu)        
         dataset = ddf.map_partitions(self.limpiar_dataframe, meta=ddf).compute()
         
+        # Stop words
         ddf = dd.from_pandas(dataset, npartitions=self.nbr_cpu)
         dataset = ddf.map_partitions(self.quitar_stop_words_dataframe, meta=ddf).compute()
         
+        # Embeddings
+        dataset['embeddings'] = ''
+        ddf = dd.from_pandas(dataset, npartitions=self.nbr_cpu)
+        dataset = ddf.map_partitions(self.generar_embeddings, meta=ddf).compute()
+        
         return dataset
+    
+    def descargar_punkt(self):
+
+        nltk.download('punkt')
+        
+        return
+    
+    def cargar_modelo_embeddings(self):
+        
+        self.nlp = spacy.load('./data/')
+        
+        return
+    
+    def generar_embeddings(self, fuente):
+        
+        npEmbeddings = np.empty([0, 300])
+
+        for texto in fuente['full_text']:
+
+            #print(texto)
+
+            # process a sentence using the model
+            doc = self.nlp(texto)
+
+            # print(doc.vector.shape)
+            if doc.vector.shape[0]==300:
+                npEmbeddings = np.append(npEmbeddings, [doc.vector], axis = 0)
+            else:
+                npAux = np.empty([1, 300])
+                npEmbeddings = np.append(npEmbeddings, npAux, axis = 0)
+        
+        fuente['embeddings'] = list(npEmbeddings)
+        return fuente 

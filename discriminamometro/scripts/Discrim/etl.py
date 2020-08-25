@@ -53,7 +53,7 @@ class Etl():
             
             list_Formateada = []
             for tweet in list_TweetsCategoria:
-                tweet_json = self.crear_registro_json(tweet)
+                tweet_json = self.obj_utileria.crear_registro_json(tweet)
                 list_Formateada.append(tweet_json)
                 
             list_TweetsCategoria = list_Formateada
@@ -103,32 +103,6 @@ class Etl():
         str_QueryFormat = str_QueryFormat[ 0:len(str_QueryFormat) - 4 ]
 
         return str_QueryFormat
-    
-        # Método para generar el registro Json por cada tweet
-    def crear_registro_json(self, tweet):
-
-        json = {}
-
-        # Se usa un try para obtener el valor si es que proviene de un retweet
-        try:
-            json =  {
-            'user_id': unidecode(tweet.user.id_str),
-            'name': unidecode(tweet.user.name),
-            'screen_name': unidecode(tweet.user.screen_name),
-            'full_text': unidecode(tweet.retweeted_status.full_text),
-            'location': unidecode(tweet.user.location)
-        }
-        except:
-        # Si falla el try, significa que no es un retweet (es un tweet normal)
-            json =  {
-            'user_id': unidecode(tweet.user.id_str),
-            'name': unidecode(tweet.user.name),
-            'screen_name': unidecode(tweet.user.screen_name),
-            'full_text': unidecode(tweet.full_text),
-            'location': unidecode(tweet.user.location)
-        }
-
-        return json
         
     def armar_nombre_archivo(self, par_Tema):
 
