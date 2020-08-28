@@ -103,20 +103,20 @@ class API():
         for k,it in dict_scores.items():
             
             if k == 'discriminacion':
-                dict_scores.update({k: self.obj_modelos.discr.modelo.predict_proba(X_predict)})
+                dict_scores.update({k: self.obj_modelos.discr.modelo.predict_proba(X_predict).tolist()})
             elif k == 'apariencia':
-                dict_scores.update({k: self.obj_modelos.apar.modelo.predict_proba(X_predict)})                               
+                dict_scores.update({k: self.obj_modelos.apar.modelo.predict_proba(X_predict).tolist()})                           
             elif k == 'discapacidad':
-                dict_scores.update({k: self.obj_modelos.discap.modelo.predict_proba(X_predict)})                
+                dict_scores.update({k: self.obj_modelos.discap.modelo.predict_proba(X_predict).tolist()})                
             elif k == 'edad':
-                dict_scores.update({k: self.obj_modelos.edad.modelo.predict_proba(X_predict)})                
+                dict_scores.update({k: self.obj_modelos.edad.modelo.predict_proba(X_predict).tolist()})                
             elif k == 'genero':
-                dict_scores.update({k: self.obj_modelos.genero.modelo.predict_proba(X_predict)})                
+                dict_scores.update({k: self.obj_modelos.genero.modelo.predict_proba(X_predict).tolist()})                
             elif k == 'ideologia':
-                dict_scores.update({k: self.obj_modelos.ideo.modelo.predict_proba(X_predict)})                
+                dict_scores.update({k: self.obj_modelos.ideo.modelo.predict_proba(X_predict).tolist()})                
             elif k == 'orientacion':
-                dict_scores.update({k: self.obj_modelos.orien.modelo.predict_proba(X_predict)})                
+                dict_scores.update({k: self.obj_modelos.orien.modelo.predict_proba(X_predict).tolist()})                
             elif k == 'religion':
-                dict_scores.update({k: self.obj_modelos.relig.modelo.predict_proba(X_predict)})                
+                dict_scores.update({k: self.obj_modelos.relig.modelo.predict_proba(X_predict).tolist()})                
                 
         return dict_scores
