@@ -1,17 +1,20 @@
+aniso8601==8.0.0
 attrs==19.3.0
+awscli==1.18.126
 backcall==0.2.0
 bleach==3.1.5
 blis==0.4.1
 bokeh @ file:///tmp/build/80754af9/bokeh_1593187586470/work
 boto==2.49.0
 boto3==1.14.30
-botocore==1.17.30
+botocore==1.17.49
 Brotli==1.0.7
 catalogue==1.0.0
 certifi==2020.6.20
 chardet==3.0.4
 click==7.1.2
 cloudpickle @ file:///tmp/build/80754af9/cloudpickle_1594141588948/work
+colorama==0.4.3
 cycler==0.10.0
 cymem==2.0.3
 cytoolz==0.10.1
@@ -27,6 +30,7 @@ docutils==0.15.2
 entrypoints==0.3
 Flask==1.1.2
 Flask-Compress==1.5.0
+flask-restplus==0.13.0
 fsspec==0.7.4
 gensim==3.8.3
 HeapDict==1.0.1
@@ -76,6 +80,7 @@ prompt-toolkit==3.0.5
 psutil==5.7.0
 ptyprocess==0.6.0
 pyarrow==1.0.0
+pyasn1==0.4.8
 Pygments==2.6.1
 pyparsing==2.4.7
 pyrsistent==0.16.0
@@ -88,6 +93,7 @@ regex==2020.6.8
 requests==2.22.0
 requests-oauthlib==1.3.0
 retrying==1.3.3
+rsa==4.5
 s3transfer==0.3.3
 scikit-learn==0.22.1
 scipy==1.5.2
@@ -112,6 +118,6 @@ urllib3==1.25.10
 wasabi==0.7.1
 wcwidth==0.2.5
 webencodings==0.5.1
-Werkzeug==1.0.1
+Werkzeug==0.16.1
 zict==2.0.0
 zipp==3.1.0
