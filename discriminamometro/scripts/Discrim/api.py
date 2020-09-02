@@ -2,10 +2,11 @@ import Discrim.Predict.modelos as mod
 import Discrim.utileria as ut
 import pandas as pd
 import Discrim.twitter as tw
+from datetime import *
 
 class API():
     
-    def __init__(self):
+    def __init__(self, nbr_tweets_x_hrs = 2, nbr_tweets_x_ht = 3, nbr_tweets_x_usr = 4):
         
         # Cargamos la clase que hace las peticiones a twitter
         self.obj_twitter = tw.Twitter()
@@ -19,13 +20,30 @@ class API():
         self.obj_utileria.cargar_stop_words()
         self.obj_utileria.descargar_punkt()
         
-        self.nbr_tweets_x_hrs = 1
-        self.nbr_tweets_x_ht = 3
-        self.nbr_tweets_x_usr = 2
+        self.nbr_tweets_x_hrs = nbr_tweets_x_hrs
+        self.nbr_tweets_x_ht = nbr_tweets_x_ht
+        self.nbr_tweets_x_usr = nbr_tweets_x_usr
         
         return
     
     def clasificar_x_horas(self, nbr_horas):
+        
+        dttm_desde = datetime.now() + timedelta(hours = nbr_horas)
+        
+        list_Tweets = []
+        list_Tweets = self.obj_twitter.obtener_tweets('', self.nbr_tweets_x_hrs)
+        
+        list_Formateada = []
+        for tweet in list_Tweets:
+            
+            # Sólo se toman los tweets que están en el rango de tiempo solicitado
+            if dttm_desde <= tweet.created_at:
+                tweet_json = self.obj_utileria.crear_registro_json(tweet)
+                list_Formateada.append(tweet_json)
+        
+        self.proceso_prediccion(list_Formateada)
+        
+        return self.rslt
         
         return
     
