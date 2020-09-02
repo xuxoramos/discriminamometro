@@ -53,3 +53,25 @@ conda activate discriminamometro
 ```
 
 Además en el archivo **requirements.txt** se enlistan todos los paquetes y versiones. Estos fueron utilizados bajo la versión de **python 3.7.6**
+
+
+_______________
+
+### 3. Mantenimiento
+_______________
+
+#### 3.1 Generación de nuevos embeddings
+
+
+_______________
+
+### 4. Resultados
+_______________
+
+#### 4.1 Resultados clasificación binaria, ¿Un tweet es discriminatorio ó no?
+
+Para poder observar los resultados del modelo utilizado para producción, consultar el siguiente [notebook](https://github.com/sociedat/discriminamometro/blob/master/discriminamometro/scripts/04-5_modelado_discriminacion_binaria-aumento_datos.ipynb)
+
+#### 4.2 Resultados ¿A qué tipo de discriminación pertenece segun el [diccionario](https://camo.githubusercontent.com/4201aace5778730e3329ced0baed0e2bb3910fe0/68747470733a2f2f692e696d6775722e636f6d2f653573645161502e706e67) de COPRED?
+
+Para poder observar los resultados del modelo utilizado para producción, consultar la siguiente [carpeta](https://github.com/sociedat/discriminamometro/tree/master/discriminamometro/scripts/test_modelo_categoria) 
