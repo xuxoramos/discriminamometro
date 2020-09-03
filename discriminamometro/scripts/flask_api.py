@@ -13,7 +13,7 @@ ns = api.namespace('Disciminamometro',
 # Se coloca aquí para que se ejecute sólo 1 vez la descarga de los modelos
 obj_api = apii.API()
 
-@ns.route('/Usuario', endpoint='endpoint_discriminacion_x_horas')
+@ns.route('/horas', endpoint='endpoint_discriminacion_x_horas')
 class Modelo(Resource):
     """
     Aquí debe ir la descripción de la clase Modelo
@@ -25,11 +25,11 @@ class Modelo(Resource):
 
     @ns.expect(parser, validate=True)
     def get(self):
-        horas = str(request.args.get('horas'))
-        resultado = obj_api.clasificar_x_usuario(-horas)
+        horas = request.args.get('horas')
+        resultado = obj_api.clasificar_x_horas(-int(horas))
         return resultado
 
-@ns.route('/Usuario', endpoint='endpoint_discriminacion_usuario')
+@ns.route('/usuario', endpoint='endpoint_discriminacion_usuario')
 class Modelo(Resource):
     """
     Aquí debe ir la descripción de la clase Modelo
