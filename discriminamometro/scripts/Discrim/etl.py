@@ -132,7 +132,7 @@ class Etl():
         str_RutaS3 = par_Categoria + '/'
 
         # Temporalmente mandamos todo a la carpeta 00_pruebas
-        str_RutaS3 = '00_pruebas/'
+        # str_RutaS3 = '00_pruebas/'
 
         # Mandamos el archivo descargado a S3
         try:
