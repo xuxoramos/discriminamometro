@@ -1,6 +1,6 @@
 import Discrim.Train.Capa2.apariencia as apa
 import Discrim.Train.Capa2.discapacidad as disc
-import Discrim.Train.Capa2.edad as edad
+import Discrim.Train.Capa2.edad as ed
 import Discrim.Train.Capa2.genero as gen
 import Discrim.Train.Capa2.ideologia as ideo
 import Discrim.Train.Capa2.orientacion as orien
@@ -14,7 +14,7 @@ def apariencia():
     obj_apariencia.train()
     obj_apariencia.crear_pickle()
     obj_apariencia.mandar_pickle_s3()
-
+    
     return
 
 def discapacidad():
@@ -30,7 +30,7 @@ def discapacidad():
 
 def edad():
 
-    obj_edad = edad.Edad()
+    obj_edad = ed.Edad()
     obj_edad.descargar_tweets_entrenamiento()
     obj_edad.transformar_dataset()
     obj_edad.train()
@@ -87,13 +87,14 @@ if __name__== "__main__" :
 
     try:
     
-        #apariencia()
-        #discapacidad()
-        #edad()
+        # La llamada a cada entrenamiento está acomodada del más rápido al más tardado
+        religion()
+        edad()
+        discapacidad()
+        ideologia()
+        apariencia()
+        orientacion()
         genero()
-        #ideologia()
-        #orientacion()
-        #religion()
     
     # Si llega a tronar algo, cachamos el error y lo escribimos en el archivo log para saber qué fue
     except Exception as err:
