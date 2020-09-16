@@ -89,6 +89,8 @@ _______________
 ### 5. Activación de webscraping y API
 _______________
 
+Para poder ejecutar ambos programas es necesario activar el ambiente `discriminamometro` y tener las credenciales de s3 en `~/.aws/credentials` con el nombre de usuario `sociedat`.
+
 En la carpeta `scripts` se encuenta el archivo [cron_descargas.sh](https://github.com/sociedat/discriminamometro/blob/master/discriminamometro/scripts/cron_descargas.sh) este es el encargado de correr el proceso antes mencionado y para hacerlo correr en caso de que la máquina falle o se termine solo debera correr el siguiente comando
 
 ```
