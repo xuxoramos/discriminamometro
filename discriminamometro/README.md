@@ -106,5 +106,5 @@ y se debe agregar la siguiente linea
 Para volver a levantar la API se debera correr el siguiente comando
 
 ```
-python flask_api.py
+python ./scripts/flask_api.py
 ```
