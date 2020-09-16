@@ -64,8 +64,13 @@ Para el mantenimiento de los modelos es recomendable usar una máquina ec2 con 3
 
 #### 3.1 Generación de nuevos embeddings
 
+Para poder generar nuevos embeddings consultar el siguiente [notebook](https://github.com/sociedat/discriminamometro/blob/master/discriminamometro/scripts/Arquitectura_Modulos.ipynb). Aquí encontraras un ejemplo de como correr y ver el resultado. El proceso se lleva acabo con el script [script_embeddings.py](https://github.com/sociedat/discriminamometro/blob/master/discriminamometro/scripts/script_embeddings.py)
+
 #### 3.2 Reentrenamiento de los modelos
 
+El ejemplo para el reentramiento de los modelos se puede encontrar en el siguiente [notebook](https://github.com/sociedat/discriminamometro/blob/master/discriminamometro/scripts/Arquitectura_Modulos.ipynb). Se sugiere realizarlo de forma mensual incluyendo la generación de nuevos embeddings.
+
+Actualmente se realizó un balanceo de la base de datos, considerando 70-30.
 _______________
 
 ### 4. Resultados
@@ -78,3 +83,26 @@ Para poder observar los resultados del modelo utilizado para producción, consul
 #### 4.2 Resultados ¿A qué tipo de discriminación pertenece segun el [diccionario](https://camo.githubusercontent.com/4201aace5778730e3329ced0baed0e2bb3910fe0/68747470733a2f2f692e696d6775722e636f6d2f653573645161502e706e67) de COPRED?
 
 Para poder observar los resultados del modelo utilizado para producción, consultar la siguiente [carpeta](https://github.com/sociedat/discriminamometro/tree/master/discriminamometro/scripts/test_modelo_categoria)
+
+_______________
+
+### 5. Activación de webscraping y API
+_______________
+
+En la carpeta `scripts` se encuenta el archivo [cron_descargas.sh](https://github.com/sociedat/discriminamometro/blob/master/discriminamometro/scripts/cron_descargas.sh) este es el encargado de correr el proceso antes mencionado y para hacerlo correr en caso de que la máquina falle o se termine solo debera correr el siguiente comando
+
+```
+crontab -e
+```
+
+y se debe agregar la siguiente linea
+
+```
+*/15 * * * * sh /home/discriminamometro/discriminamometro/srcipts/cron_descargas.sh
+```
+
+Para volver a levantar la API se debera correr el siguiente comando
+
+```
+python flask_api.py
+```
