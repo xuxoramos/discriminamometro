@@ -3,7 +3,7 @@ try:
     import Discrim.etl as etl
     
     # Se instancia la clase encargada del proceso ETL
-    obj_etl = etl.Etl('REAL')
+    obj_etl = etl.Etl('PRUEBA')
     
     # Se manda llamar el proceso de descarga de tweets
     obj_etl.descarga_recurrente_tweets()

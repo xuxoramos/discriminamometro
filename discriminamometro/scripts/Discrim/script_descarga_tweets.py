@@ -1,13 +1,12 @@
-
 try:
     
-    from Discriminamometro import Utileria, Discriminamometro
+    import Discrim.etl as etl
     
-    # Se instancia la clase del Discriminamometro
-    obj_Discr = Discriminamometro('REAL')
+    # Se instancia la clase encargada del proceso ETL
+    obj_etl = etl.Etl('REAL')
     
     # Se manda llamar el proceso de descarga de tweets
-    obj_Discr.DescargarTweets()
+    obj_etl.descarga_recurrente_tweets()
 
 except Exception as err:
     with open('web_scraping_error.txt', 'w') as file:
