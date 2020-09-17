@@ -1,0 +1,3 @@
+[consumer_tokens]
+consumer_key = usuario
+consumer_secret = password
