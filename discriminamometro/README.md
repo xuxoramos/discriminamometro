@@ -97,10 +97,13 @@ En la carpeta `scripts` se encuenta el archivo [cron_descargas.sh](https://githu
 crontab -e
 ```
 
-y se debe agregar la siguiente linea
+y se deben agregar las siguientes lineas:
 
 ```
-*/15 * * * * sh /home/discriminamometro/discriminamometro/srcipts/cron_descargas.sh
+SHELL=/bin/bash
+BASH_ENV=~/.bashrc_conda
+
+*/15 * * * * cd /home/discriminamometro/discriminamometro/discriminamometro/scripts; conda activate discriminamometro; python /home/discriminamometro/discriminamometro/discriminamometro/scripts/script_descarga_tweets.py
 ```
 
 Para volver a levantar la API se debera correr el siguiente comando
