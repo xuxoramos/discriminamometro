@@ -114,7 +114,7 @@ traitlets==4.3.3
 tweepy==3.8.0
 typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1592847887441/work
 Unidecode==1.1.1
-urllib3==1.25.10
+urllib3==1.26.5
 wasabi==0.7.1
 wcwidth==0.2.5
 webencodings==0.5.1
