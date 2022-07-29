@@ -51,7 +51,7 @@ kiwisolver==1.2.0
 locket==0.2.0
 MarkupSafe @ file:///tmp/build/80754af9/markupsafe_1594371495811/work
 matplotlib==3.3.0
-mistune==0.8.4
+mistune==2.0.3
 mkl-fft==1.1.0
 mkl-random==1.1.1
 mkl-service==2.3.0
